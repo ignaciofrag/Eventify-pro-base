@@ -9,7 +9,7 @@ function Home() {
           <div className="row py-lg-5">
             <div className="col-lg-6 col-md-8 mx-auto">
               <h1 className="fw-light text-light">Encuentra y reserva proveedores de eventos</h1>
-              <p className="lead text-light">Cubrimos todos los aspectos de tu evento, desde la selección del lugar perfecto y el servicio de catering, hasta los fotógrafos más destacados. Reserva con nosotros y asegura un evento inolvidable.</p>
+              <p className="lead text-light">Cubrimos todos los aspectos de tu evento, desde la selección del lugar perfecto y el servicio de catering, hasta los fotógrafos más destacados. Reserva aquí y asegura un evento inolvidable.</p>
               <p>
               <form className="d-flex justify-content-center">
                 <input className="form-control me-2" type="search" placeholder="Busca un proveedor" aria-label="Search" />
