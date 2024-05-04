@@ -2,17 +2,29 @@ import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
 function NewEventModal(props) {
-  // Estado para manejar la ubicación y el tipo de evento seleccionado
   const [selectedLocation, setSelectedLocation] = useState("");
   const [eventType, setEventType] = useState(""); // Estado para el tipo de evento
+  
 
-  // Manejadores de cambio para los selects
   const handleLocationChange = (e) => {
     setSelectedLocation(e.target.value);
   };
 
   const handleEventTypeChange = (e) => {
-    setEventType(e.target.value); // Ajustamos la función para cambiar el tipo de evento
+    setEventType(e.target.value);
+  };
+
+  // Función para manejar el envío del formulario
+  const handleSubmit = (e) => {
+    e.preventDefault(); // Previene la recarga de la página
+    const newEvent = {
+      name: e.target.formEventName.value,
+      eventType: eventType,
+      date: new Date().toLocaleString(), // Ejemplo de fecha
+      guestCount: 50, // Ejemplo de cantidad de invitados
+    };
+    props.addEvent(newEvent); // Agrega el evento al estado en UserDashboard
+    props.onHide(); // Cierra el modal
   };
 
   return (
@@ -29,7 +41,7 @@ function NewEventModal(props) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="bg-dark text-white">
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formEventName">
             <Form.Label>Nombre del Evento</Form.Label>
             <Form.Control
@@ -45,12 +57,12 @@ function NewEventModal(props) {
               onChange={handleEventTypeChange}
             >
               <option>Cumpleaños</option>
-              <option>Despedida de soltera/o</option>
-              <option>Matriomonio</option>
+              <option>Matrimonio</option>
               <option>Bautizo</option>
               <option>Aniversario</option>
               <option>Cena formal</option>
               <option>Asado</option>
+              <option>Despedida de soltera/o</option>
               <option>Otro</option>
             </Form.Control>
           </Form.Group>
@@ -146,11 +158,11 @@ function NewEventModal(props) {
             <Form.Label>Tipo de Servicio</Form.Label>
             <Form.Control type="text" placeholder="Tipo de servicio" />
           </Form.Group>
-        </Form>
+          </Form>
       </Modal.Body>
       <Modal.Footer className="bg-dark text-white">
         <Button variant="danger" type="submit">
-          Buscar
+          Crear evento
         </Button>
         <Button variant="warning" onClick={props.onHide}>
           Cerrar

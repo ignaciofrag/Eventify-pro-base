@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faBook, faEnvelope, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
-import MyReservations from '../components/myreservations'
-import NewEventModal from '../components/newevent'; // Asegúrate de importar el modal correctamente
+import MyReservations from '../components/myreservations';
+import NewEventModal from '../components/newevent';
 
 function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
+  const [events, setEvents] = useState([]); // Estado para almacenar los eventos
+
+  // Función para añadir un nuevo evento
+  const addEvent = (newEvent) => {
+    setEvents([...events, newEvent]);
+  };
 
   return (
     <div className="d-flex">
@@ -36,12 +42,12 @@ function UserDashboard() {
         </Button>
       </div>
 
-      <NewEventModal show={modalShow} onHide={() => setModalShow(false)} />
+      <NewEventModal show={modalShow} onHide={() => setModalShow(false)} addEvent={addEvent} />
 
       {/* Main content section */}
       <div className="flex-grow-1 p-3 bg-light">
         <h1 className="text-dark">Dashboard</h1>
-        <MyReservations />
+        <MyReservations events={events} />
       </div>
     </div>
   );

@@ -26,14 +26,7 @@ function NavigationBar ({ onLoginClick }) {
                 <Nav.Link href="#">FAQs</Nav.Link>
                 <Nav.Link href="#">Acerca de</Nav.Link>
               </Nav>
-              <Form className="d-flex">
-                <FormControl
-                  type="search"
-                  placeholder="Search..."
-                  className="me-2"
-                  aria-label="Search"
-                />
-              </Form>
+            
               <Button variant="warning" className="me-2" onClick={onLoginClick}>Iniciar sesión</Button>
               <Button variant="danger">Registrate</Button>
             </Navbar.Collapse>
