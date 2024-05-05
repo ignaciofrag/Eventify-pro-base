@@ -5,6 +5,7 @@ import NavigationBar from './components/navbar';
 import UserNavbar from './components/usernavbar'; // Asegúrate de que este es el nombre correcto y la ruta del archivo
 import LoginModal from './components/login'
 import UserDashboard from './views/userdashboard';
+import Cityview from './views/Cityview';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
@@ -19,6 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/userdashboard" element={<UserDashboard />} />
+          <Route path="/city/:cityName" element={<Cityview />} />
           {/* Agregar más rutas aquí */}
         </Routes>
         <LoginModal show={showLogin} onHide={() => setShowLogin(false)} />

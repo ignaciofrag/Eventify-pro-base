@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Dropdown, DropdownButton, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // Importar useNavigate
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import CityView from './Cityview';
 // Imporcionde imágenes
 import antofagasta from '../imgs/antofagasta.jpg';
 import vinaDelMar from '../imgs/viñadelmar.jpg';
@@ -18,8 +19,10 @@ import valparaiso from '../imgs/Valparaiso.jpg';
 import pucon from '../imgs/Pucon.JPG';
 import puertoVaras from '../imgs/PuertoVaras.jpg';
 
+
 function Home() {
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate(); // Hook para la navegación
 
   const handleToggleDropdown = (isOpen) => {
     setShowDropdown(isOpen);
@@ -47,6 +50,11 @@ function Home() {
     { city: "Pucón", title: "Lugares en Pucón", img: pucon },
     { city: "Puerto Varas", title: "Lugares en Puerto Varas", img: puertoVaras }
   ];
+  
+  const handleMoreInfoClick = (city) => {
+    navigate(`/city/${city}`);
+  };
+
 
   return (
     <div>
@@ -82,14 +90,16 @@ function Home() {
           <Row xs={1} md={2} lg={3} className="g-4">
             {properties.map((property, index) => (
               <Col key={index}>
-                <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
-                  <Card.Img variant="top" src={property.img} />
+    <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
+                <Card.Img variant="top" src={property.img} />
                   <Card.Body>
                     <Card.Title>{property.title}</Card.Title>
                     <Card.Text>
                       Encuentra el lugar perfecto para tus eventos y celebraciones ubicado en {property.city}.
                     </Card.Text>
-                    <Button variant="danger">Más información</Button>
+                    <Button variant="danger" onClick={() => handleMoreInfoClick(property.city)}>
+                    Más información
+                    </Button>
                   </Card.Body>
                 </Card>
               </Col>
@@ -97,7 +107,7 @@ function Home() {
           </Row>
         </Container>
         <Container className="py-5 bg-dark">
-          <h2 className="text-center mb-4 text-light">Proveedores Destacados</h2>
+          <h2 className="text-center mb-4 text-light">Proveedores Destacados ⭐ </h2>
           <Row xs={1} md={2} lg={3} className="g-4">
             {featuredProviders.map(provider => (
               <Col key={provider.id}>
