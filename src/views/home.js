@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dropdown, DropdownButton, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Importar useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CityView from './Cityview';
 // Imporcionde imágenes
@@ -22,7 +22,7 @@ import puertoVaras from '../imgs/PuertoVaras.jpg';
 
 function Home() {
   const [showDropdown, setShowDropdown] = useState(false);
-  const navigate = useNavigate(); // Hook para la navegación
+  const navigate = useNavigate(); // Hook para navegación
 
   const handleToggleDropdown = (isOpen) => {
     setShowDropdown(isOpen);

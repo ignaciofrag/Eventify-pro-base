@@ -9,7 +9,7 @@ function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [events, setEvents] = useState([]); // Estado para almacenar los eventos
 
-  // Función para añadir un nuevo evento
+  // Función para añadir un nuevo evento**beta_enevaluacion
   const addEvent = (newEvent) => {
     setEvents([...events, newEvent]);
   };

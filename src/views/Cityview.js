@@ -5,11 +5,11 @@ import { useParams } from 'react-router-dom';
 function Cityview() {
   const { cityName } = useParams();
   
-  // Supongamos que tienes datos más detallados que podrías cargar aquí, posiblemente desde un API o un objeto.
+  // posiblemente tendremos que integrar desde desde un API.
   const cityData = {
     title: `Lugares en ${cityName}`,
     description: `Información detallada sobre eventos y locales en ${cityName}. Ideal para todo tipo de celebraciones y eventos.`,
-    imgSrc: `/path/to/images/${cityName}.jpg` // Asegúrate de tener una estructura de almacenamiento de imágenes coherente
+    imgSrc: `/path/to/images/${cityName}.jpg`//revisar****la logica para recarga de imagenes está fija a nombrede ciudad
   };
 
   return (
