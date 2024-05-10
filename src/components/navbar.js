@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/navbar.css'
+import { Link } from 'react-router-dom'; 
 import { Container, Navbar, Nav, Form, FormControl, Button } from 'react-bootstrap';
 
 function NavigationBar ({ onLoginClick }) {
@@ -28,7 +29,7 @@ function NavigationBar ({ onLoginClick }) {
               </Nav>
             
               <Button variant="warning" className="me-2" onClick={onLoginClick}>Iniciar sesión</Button>
-              <Button variant="danger">Registrate</Button>
+<Link to="/registrarse" className="btn btn-danger">Registrarse</Link>
             </Navbar.Collapse>
           </Container>
         </Navbar>
