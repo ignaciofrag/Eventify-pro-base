@@ -31,6 +31,8 @@ function RegistroUsuario() {
     const userToRegister = {
         email: formData.email,
         password: formData.password,
+        first_name: formData.nombre,  // Asumiendo que tienes un campo 'nombre' en tu estado
+        last_name: formData.apellido,  // Asumiendo que tienes un campo 'apellido' en tu estado
         profile: {
           phone_number: formData.telefono,
           address: formData.ciudad,
@@ -39,7 +41,7 @@ function RegistroUsuario() {
           url_portfolio: formData.portfolioURL,
           role: formData.tipoUsuario,
         }
-      };
+    };
 
       try {
         const response = await fetch("http://localhost:5500/user", {

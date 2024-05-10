@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext'; // Asegúrate de que la 'A' esté en mayúscula si así nombraste tu archivo
 import Home from './views/home';
 import NavigationBar from './components/navbar';
 import UserNavbar from './components/usernavbar'; // Asegúrate de que este es el nombre correcto y la ruta del archivo
@@ -36,9 +37,9 @@ function App() {
 
   return (
     <Router>
-      <AppProvider> {/* Envuelve tus componentes con AppProvider aquí */}
+      <AuthProvider> {/* Envuelve tus componentes con AppProvider aquí */}
         <Layout />
-      </AppProvider>
+      </AuthProvider>
     </Router>
   );
 }

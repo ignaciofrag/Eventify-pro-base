@@ -4,10 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faBook, faEnvelope, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 import MyReservations from '../components/myreservations';
 import NewEventModal from '../components/newevent';
+import { useAuth } from '../context/AuthContext';
+
 
 function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [events, setEvents] = useState([]); // Estado para almacenar los eventos
+  const { user } = useAuth(); // Utiliza el hook useAuth para acceder a los datos del usuario
 
   // Función para añadir un nuevo evento**beta_enevaluacion
   const addEvent = (newEvent) => {
@@ -47,6 +50,11 @@ function UserDashboard() {
       {/* Main content section */}
       <div className="flex-grow-1 p-3 bg-light">
         <h1 className="text-dark">Dashboard</h1>
+        {user ? (
+        <h2>Bienvenido, {user.first_name} {user.last_name}!</h2>  // Muestra el nombre del usuario
+      ) : (
+        <h2>No estás logueado</h2>
+      )}
         <MyReservations events={events} />
       </div>
     </div>
