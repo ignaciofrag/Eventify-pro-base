@@ -6,7 +6,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const login = (userData) => {
-    setUser(userData);
+    // Asegúrate de que el objeto userData incluya el rol del usuario
+    setUser({
+      ...userData,
+      isAuthenticated: true
+    });
   };
 
   const logout = () => {
