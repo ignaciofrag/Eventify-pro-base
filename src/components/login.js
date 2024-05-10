@@ -6,6 +6,7 @@ import {
   Form,
   FloatingLabel,
   FormControl,
+  FormCheck
 } from "react-bootstrap";
 import { useAuth } from '../context/AuthContext';
 
@@ -13,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 function LoginModal({ show, onHide }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false); 
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -20,7 +22,7 @@ function LoginModal({ show, onHide }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const loginData = { email, password };
+    const loginData = { email, password, rememberMe };
 
     try {
         const response = await fetch("http://localhost:5500/user/login", {
@@ -32,9 +34,19 @@ function LoginModal({ show, onHide }) {
         const data = await response.json();
         if (response.ok) {
             alert("Login exitoso!");
-            login(data.user);  // Actualiza el contexto de autenticación
-            onHide();          // Cierra el modal
-            navigate('/userdashboard');  // Redirige al dashboard
+            login(data.user);  
+            if (rememberMe) {
+                // mail en localStorage
+                localStorage.setItem('userEmail', email);
+                // Opcionalmente, si implementamos token
+                localStorage.setItem('userToken', data.token);
+            } else {
+                // limpiadatos
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userToken');
+            }
+            onHide();          // <----- Cierra el modal
+            navigate('/userdashboard');  // <--- Redirige al dashboard
         } else {
             alert("Error en el inicio de sesión: " + data.message);
         }
@@ -42,7 +54,9 @@ function LoginModal({ show, onHide }) {
         alert("Error en el inicio de sesión: " + error.message);
     }
 };
-
+const handleRememberMe = () => {
+  setRememberMe(!rememberMe);
+};
   if (!show) return null;
   return (
     <Modal show={show} onHide={onHide} dialogClassName="modal-dialog" contentClassName="modal-content rounded-4 shadow" backdrop="static" centered>
@@ -59,6 +73,9 @@ function LoginModal({ show, onHide }) {
           <FloatingLabel controlId="floatingPassword" label="Contraseña" className="mb-3 text-dark">
             <FormControl type="password" placeholder="Password" className="form-control rounded-3" onChange={e => setPassword(e.target.value)} />
           </FloatingLabel>
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <FormCheck type="checkbox" label="Recuerda mi contraseña" checked={rememberMe} onChange={handleRememberMe} />
+          </Form.Group>
           <Button variant="danger" className="w-100 mb-2 btn-lg rounded-3" type="submit">
             Iniciar sesión
           </Button>
