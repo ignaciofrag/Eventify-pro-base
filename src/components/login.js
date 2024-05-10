@@ -34,9 +34,19 @@ function LoginModal({ show, onHide }) {
         const data = await response.json();
         if (response.ok) {
             alert("Login exitoso!");
-            login(data.user);  // Actualiza el contexto de autenticación
-            onHide();          // Cierra el modal
-            navigate('/userdashboard');  // Redirige al dashboard
+            login(data.user);  
+            if (rememberMe) {
+                // mail en localStorage
+                localStorage.setItem('userEmail', email);
+                // Opcionalmente, si implementamos token
+                localStorage.setItem('userToken', data.token);
+            } else {
+                // limpiadatos
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userToken');
+            }
+            onHide();          // <----- Cierra el modal
+            navigate('/userdashboard');  // <--- Redirige al dashboard
         } else {
             alert("Error en el inicio de sesión: " + data.message);
         }
