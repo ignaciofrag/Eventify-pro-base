@@ -10,6 +10,8 @@ import Cityview from './views/Cityview';
 import RegistroUsuario from './components/RegistroUsuario';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import { AppProvider } from './store/appContext'; // Asegúrate de importar AppProvider correctamente
+
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -34,7 +36,9 @@ function App() {
 
   return (
     <Router>
-      <Layout />
+      <AppProvider> {/* Envuelve tus componentes con AppProvider aquí */}
+        <Layout />
+      </AppProvider>
     </Router>
   );
 }
