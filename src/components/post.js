@@ -1,31 +1,35 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { Carousel } from 'react-bootstrap';
 
 function Post() {
     return (
-        <div className="container">
+        <div className="container mt-4">
             <div className="row">
                 <div className="col-12 col-sm-8">
-                    <div id="slider-commercial" className="carousel slide" data-bs-ride="carousel">
-                        <div className="carousel-inner">
-                            <div className="carousel-item active">
-                                <img src="https://cdn0.matrimonios.cl/article-real-wedding/303/3_2/960/jpg/410041.jpeg" className="d-block w-100" alt="" />
-                            </div>
-                            <div className="carousel-item">
-                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5Xdkm_D-Ma8kq26Oip2h4CjgjyYbr1c4cQi3qXpmVUw&s" className="d-block w-100" alt="" />
-                            </div>
-                            <div className="carousel-item">
-                                <img src="https://www.zankyou.cl/images/mag-card-c/fc2/80b6/878/623/-/cl/wp-content/uploads/2018/07/befunky-collage-8-1.jpg" className="d-block w-100" alt="" />
-                            </div>
-                        </div>
-                        <button className="carousel-control-prev" type="button" data-bs-target="#slider-commercial" data-bs-slide="prev">
-                            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span className="visually-hidden">Previous</span>
-                        </button>
-                        <button className="carousel-control-next" type="button" data-bs-target="#slider-commercial" data-bs-slide="next">
-                            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span className="visually-hidden">Next</span>
-                        </button>
-                    </div>
+                    <Carousel>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="https://cdn0.matrimonios.cl/article-real-wedding/303/3_2/960/jpg/410041.jpeg"
+                                alt="Primera diapositiva"
+                            />
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5Xdkm_D-Ma8kq26Oip2h4CjgjyYbr1c4cQi3qXpmVUw&s"
+                                alt="Segunda diapositiva"
+                            />
+                        </Carousel.Item>
+                        <Carousel.Item>
+                            <img
+                                className="d-block w-100"
+                                src="https://www.zankyou.cl/images/mag-card-c/fc2/80b6/878/623/-/cl/wp-content/uploads/2018/07/befunky-collage-8-1.jpg"
+                                alt="Tercera diapositiva"
+                            />
+                        </Carousel.Item>
+                    </Carousel>
                     <h3>Información</h3>
                     <p>
                         Daniella Pilpintu es una maestra de ceremonias simbólicas apasionada por crear momentos únicos y auténticos en cada etapa de la vida, especialmente en bodas. Su objetivo es brindarles una experiencia llena de emociones y significados duraderos. Desde festejos íntimos hasta grandes celebraciones, ella ofrece una guía cálida y profesional en cada paso del camino.
@@ -47,10 +51,10 @@ function Post() {
                 </div>
                 <div className="col-12 col-sm-4">
                     <div className="mb-3">
-                        <a href="commercial.html" className="btn btn-danger"><i className="fa fa-angle-left" aria-hidden="true"></i> Volver al listado</a>
+                        <Link to="/" className="btn btn-danger">Volver al atrás</Link>
                     </div>
                     <div className="mb-3">
-                        <a href="#!" className="btn btn-danger">Siguiente anuncio <i className="fa fa-angle-right" aria-hidden="true"></i></a>
+                        <a href="#!" className="btn btn-danger">Enviar Mensaje</a>
                     </div>
                     <div className="card mb-3">
                         <div className="card-body">
@@ -81,4 +85,4 @@ function Post() {
     );
 }
 
-export default Post;
+export default Post
