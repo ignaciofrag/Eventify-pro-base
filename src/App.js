@@ -27,8 +27,8 @@ function App() {
         {shouldShowUserNavbar ? <UserNavbar /> : <NavigationBar onLoginClick={() => setShowLogin(true)} />}
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/userdashboard" element={<UserDashboard />} />
-          <Route path="/providerdashboard" element={<ProviderDashboard />} />
+          <Route path="/userdashboard" element={<ClientRoute><UserDashboard /></ClientRoute>} />
+          <Route path="/providerdashboard" element={<ProviderRoute><ProviderDashboard /></ProviderRoute>} />
           <Route path="/post" element={<Post />} />
           <Route path="/city/:cityName" element={<Cityview />} />
           <Route path="/registrarse" element={<RegistroUsuario />} />
