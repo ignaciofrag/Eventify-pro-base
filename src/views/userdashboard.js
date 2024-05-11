@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faBook, faEnvelope, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
@@ -27,7 +28,9 @@ function UserDashboard() {
         <Offcanvas.Body className="flex-grow-1">
           <ListGroup variant="flush">
             <ListGroup.Item className="bg-dark text-light">
+            <Link to="/#" className="text-decoration-none text-light">
               <FontAwesomeIcon icon={faHome} /> Home
+              </Link>
             </ListGroup.Item>
             <ListGroup.Item className="bg-dark text-light">
               <FontAwesomeIcon icon={faUser} /> Perfil
