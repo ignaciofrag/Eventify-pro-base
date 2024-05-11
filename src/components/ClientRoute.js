@@ -7,5 +7,5 @@ function ClientRoute({ children }) {
   return user && user.isAuthenticated && user.role === 'Cliente' ? children : <Navigate to="/" />;
 }
 
-
+export default ClientRoute;
 

@@ -7,3 +7,4 @@ function ProviderRoute({ children }) {
   return user && user.isAuthenticated && user.role === 'Proveedor' ? children : <Navigate to="/" />;
 }
 
+export default ProviderRoute;

@@ -10,6 +10,8 @@ import UserDashboard from './views/userdashboard';
 import Cityview from './views/Cityview';
 import RegistroUsuario from './components/RegistroUsuario';
 import ProviderDashboard from './views/ProviderDashboard';
+import ClientRoute from './components/ClientRoute';
+import ProviderRoute from './components/ProviderRoute';// Importa ProviderRoute
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
