@@ -4,16 +4,15 @@ import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faBook, faEnvelope, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
 import MyReservations from '../components/myreservations';
-import NewEventModal from '../components/newevent';
+import NewEventModal from '../components/NewEventModal';
 import { useAuth } from '../context/AuthContext';
-
 
 function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [events, setEvents] = useState([]); // Estado para almacenar los eventos
   const { user } = useAuth(); // Utiliza el hook useAuth para acceder a los datos del usuario
 
-  // Función para añadir un nuevo evento**beta_enevaluacion
+  // Función para añadir un nuevo evento
   const addEvent = (newEvent) => {
     setEvents([...events, newEvent]);
   };
@@ -28,8 +27,8 @@ function UserDashboard() {
         <Offcanvas.Body className="flex-grow-1">
           <ListGroup variant="flush">
             <ListGroup.Item className="bg-dark text-light">
-            <Link to="/#" className="text-decoration-none text-light">
-              <FontAwesomeIcon icon={faHome} /> Home
+              <Link to="/#" className="text-decoration-none text-light">
+                <FontAwesomeIcon icon={faHome} /> Home
               </Link>
             </ListGroup.Item>
             <ListGroup.Item className="bg-dark text-light">
@@ -54,10 +53,10 @@ function UserDashboard() {
       <div className="flex-grow-1 p-3 bg-light">
         <h1 className="text-dark">Dashboard</h1>
         {user ? (
-        <h2>Bienvenido, {user.first_name} {user.last_name}!</h2>  // Muestra el nombre del usuario
-      ) : (
-        <h2>No estás logueado</h2>
-      )}
+          <h2>Bienvenido, {user.first_name} {user.last_name}!</h2>
+        ) : (
+          <h2>No estás logueado</h2>
+        )}
         <MyReservations events={events} />
       </div>
     </div>

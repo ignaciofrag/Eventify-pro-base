@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { Offcanvas, ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faCalendar, faEnvelope, faPlusSquare } from '@fortawesome/free-solid-svg-icons';
-import MyEvents from '../components/MyEvents';  // omponente similar para eventos
-import NewServiceModal from '../components/NewServiceModal';  // componente para añadir servicios
+import MyEvents from '../components/MyEvents';  // Componente para eventos
+import NewServiceModal from '../components/NewServiceModal';  // Componente para añadir servicios
 import { useAuth } from '../context/AuthContext';
 
 function ProviderDashboard() {
@@ -26,9 +26,9 @@ function ProviderDashboard() {
         </Offcanvas.Header>
         <Offcanvas.Body className="flex-grow-1">
           <ListGroup variant="flush">
-          <ListGroup.Item className="bg-dark text-light">
-            <Link to="/#" className="text-decoration-none text-light">
-              <FontAwesomeIcon icon={faHome} /> Home
+            <ListGroup.Item className="bg-dark text-light">
+              <Link to="/#" className="text-decoration-none text-light">
+                <FontAwesomeIcon icon={faHome} /> Home
               </Link>
             </ListGroup.Item>
             <ListGroup.Item className="bg-dark text-light">
@@ -53,10 +53,10 @@ function ProviderDashboard() {
       <div className="flex-grow-1 p-3 bg-light">
         <h1 className="text-dark">Dashboard del Proveedor</h1>
         {user ? (
-        <h2>Bienvenido, {user.first_name} {user.last_name}!</h2>
-      ) : (
-        <h2>No estás logueado</h2>
-      )}
+          <h2>Bienvenido, {user.first_name} {user.last_name}!</h2>
+        ) : (
+          <h2>No estás logueado</h2>
+        )}
         <MyEvents services={services} />
       </div>
     </div>
