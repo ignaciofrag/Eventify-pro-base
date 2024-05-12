@@ -1,7 +1,9 @@
+
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 
-function RegistroUsuario() {
+function RegistroUsuario({onUserExists}) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -11,11 +13,13 @@ function RegistroUsuario() {
     tipoUsuario: "",
     password: "",
     confirmPassword: "",
-    telefono: "",  // Asegúrate de agregar los campos adicionales como teléfono si es necesario
+    telefono: "",
     descripcion: "",
     companyName: "",
-    portfolioURL: ""
+    portfolioURL: "",
   });
+
+  const navigate = useNavigate(); // Hook para la navegación
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -23,46 +27,75 @@ function RegistroUsuario() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // Validar que todas las campos requeridos estén presentes
+    const requiredFields = ["nombre", "apellido", "username", "email", "ciudad", "tipoUsuario", "password", "confirmPassword", "telefono"];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    if (missingFields.length > 0) {
+      alert(`Por favor completa los campos requeridos: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Validar que la contraseña cumpla con los requisitos
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      alert("La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.");
+      return;
+    }
+
+    // Validar que la confirmación de contraseña coincida
     if (formData.password !== formData.confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
 
+    // Validar el formato del correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("Por favor introduce un correo electrónico válido.");
+      return;
+    }
+
+    // Si todas las validaciones pasan, proceder a registrar al usuario
     const userToRegister = {
-        email: formData.email,
-        password: formData.password,
-        first_name: formData.nombre,  // Asumiendo que tienes un campo 'nombre' en tu estado
-        last_name: formData.apellido,  // Asumiendo que tienes un campo 'apellido' en tu estado
-        profile: {
-          phone_number: formData.telefono,
-          address: formData.ciudad,
-          description: formData.descripcion,
-          company_name: formData.companyName,
-          url_portfolio: formData.portfolioURL,
-          role: formData.tipoUsuario,
-        }
+      email: formData.email,
+      password: formData.password,
+      first_name: formData.nombre,
+      last_name: formData.apellido,
+      profile: {
+        phone_number: formData.telefono,
+        address: formData.ciudad,
+        description: formData.descripcion,
+        company_name: formData.companyName,
+        url_portfolio: formData.portfolioURL,
+        role: formData.tipoUsuario,
+      }
     };
 
-      try {
-        const response = await fetch("http://localhost:5500/user", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: 'include', // Esto es crucial si estás manejando cookies o autenticación basada en sesiones
-          body: JSON.stringify(userToRegister)
-        });
-      
-        if (response.ok) {
-          const data = await response.json();
-          alert("Registro exitoso!");
-        } else {
-          const errorData = await response.json();
-          alert("Error en el registro: " + errorData.message);
-        }
-      } catch (error) {
-        alert("Error en el registro: " + error.message);
+    try {
+      const response = await fetch("http://localhost:5500/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: 'include', // Esto es crucial si estás manejando cookies o autenticación basada en sesiones
+        body: JSON.stringify(userToRegister)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert("Registro exitoso!");
+        navigate('/userdashboard');  // Cambia según el rol si es necesario
+      } else if (response.status === 409) {
+        alert("Correo electrónico ya registrado. Por favor inicie sesión.");
+        onUserExists()  // Usa lafuncion para redirigir
+      } else {
+        const errorData = await response.json();
+        alert("Error en el registro: " + errorData.message);
       }
+    } catch (error) {
+      alert("Error en el registro: " + error.message);
+    }
   };
 
   return (

@@ -50,23 +50,23 @@ function NewEventModal({ show, onHide, addEvent }) {
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Añadir Nuevo Servicio</Modal.Title>
+        <Modal.Title>Publicar Servicio Necesitado</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          <FloatingLabel controlId="serviceName" label="Nombre del Servicio" className="mb-3">
+          <FloatingLabel controlId="serviceName" label="Nombre o título del Servicio" className="mb-3">
             <Form.Control
               type="text"
-              placeholder="Nombre del Servicio"
+              placeholder="Nombre o título del Servicio"
               value={serviceName}
               onChange={e => setServiceName(e.target.value)}
               required
             />
           </FloatingLabel>
-          <FloatingLabel controlId="serviceType" label="Tipo de Servicio" className="mb-3">
+          <FloatingLabel controlId="serviceType" label="Tipo de Evento" className="mb-3">
             <Form.Control
               type="text"
-              placeholder="Tipo de Servicio"
+              placeholder="Tipo de Evento o lugar que se necesita"
               value={serviceType}
               onChange={e => setServiceType(e.target.value)}
               required
@@ -91,15 +91,7 @@ function NewEventModal({ show, onHide, addEvent }) {
               required
             />
           </FloatingLabel>
-          <FloatingLabel controlId="profileId" label="ID del Perfil" className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="ID del Perfil"
-              value={profileId}
-              onChange={e => setProfileId(e.target.value)}
-              required
-            />
-          </FloatingLabel>
+          
           <Button variant="primary" type="submit">
             Añadir Servicio
           </Button>
