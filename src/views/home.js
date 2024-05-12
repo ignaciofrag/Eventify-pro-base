@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dropdown, DropdownButton, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CityView from './Cityview';
+import defaultImage from '../imgs/defaultService.png'
+
 // Imporcionde imágenes
 import antofagasta from '../imgs/antofagasta.jpg';
 import vinaDelMar from '../imgs/viñadelmar.jpg';
@@ -21,12 +23,32 @@ import puertoVaras from '../imgs/PuertoVaras.jpg';
 
 
 function Home() {
+  const [services, setServices] = useState([]);  // Estado para almacenar los servicios disponibles
   const [showDropdown, setShowDropdown] = useState(false);
-  const navigate = useNavigate(); // Hook para navegación
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('http://localhost:5500/services');
+        const data = await response.json();
+        if (response.ok) {
+          setServices(data);  // Carga los servicios en el estado
+        } else {
+          throw new Error('Failed to fetch services');
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   const handleToggleDropdown = (isOpen) => {
     setShowDropdown(isOpen);
   };
+
 
   const featuredProviders = [
     { id: 1, name: "Banquete Palace", location: "Santiago", timesHired: 150 },
@@ -84,6 +106,25 @@ function Home() {
             </div>
           </div>
         </section>
+        <Container className="py-5 bg-dark">
+          <h2 className="text-center mb-4 text-light">Servicios Disponibles</h2>
+          <Row xs={1} md={2} lg={3} className="g-4">
+            {services.map(service => (
+              <Col key={service.id}>
+                <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
+                  <Card.Img variant="top" src={service.image || defaultImage} />
+                  <Card.Body>
+                    <Card.Title>{service.name}</Card.Title>
+                    <Card.Text>{service.description}</Card.Text>
+                    <Button variant="danger" onClick={() => navigate(`/service/${service.id}`)}>
+                      Más información
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          </Container>
 
         <Container className="py-5 bg-dark">
           <h2 className="text-center mb-4 text-light">Lugares de Eventos en Chile</h2>
