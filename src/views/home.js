@@ -49,6 +49,8 @@ function Home() {
     setShowDropdown(isOpen);
   };
 
+  const limitedServices = services.slice(0, 3);
+
 
   const featuredProviders = [
     { id: 1, name: "Banquete Palace", location: "Santiago", timesHired: 150 },
@@ -106,10 +108,11 @@ function Home() {
             </div>
           </div>
         </section>
+        
         <Container className="py-5 bg-dark">
-          <h2 className="text-center mb-4 text-light">Servicios Disponibles</h2>
+          <h2 className="text-center mb-4 text-light">Servicios buscados por los clientes ⭐</h2>
           <Row xs={1} md={2} lg={3} className="g-4">
-            {services.map(service => (
+            {limitedServices.map(service => (
               <Col key={service.id}>
                 <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
                   <Card.Img variant="top" src={service.image || defaultImage} />
@@ -124,7 +127,10 @@ function Home() {
               </Col>
             ))}
           </Row>
-          </Container>
+          <div className="text-center mt-4">
+            <Button variant="light" onClick={() => navigate('/services')}>Ver más</Button>
+          </div>
+        </Container>
 
         <Container className="py-5 bg-dark">
           <h2 className="text-center mb-4 text-light">Lugares de Eventos en Chile</h2>

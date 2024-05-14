@@ -1,49 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Card, ListGroup, Button, Modal } from 'react-bootstrap';
+import EditEventModal from './EditEventModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Importamos FontAwesomeIcon
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons'; 
 
-function MyEvents() {
-    const [services, setServices] = useState([]);
+function MyEvents({ events, updateEvent, deleteEvent }) {
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
-    useEffect(() => {
-        fetchServices();
-    }, []);
+  const handleEdit = (event) => {
+    setCurrentEvent(event);
+    setShowEditModal(true);
+  };
 
-    const fetchServices = async () => {
-        try {
-            const response = await fetch('http://localhost:5500/services');
-            const data = await response.json();
-            setServices(data);
-        } catch (error) {
-            console.error('Error fetching services:', error);
+  const handleDelete = (eventId) => {
+    setEventToDelete(eventId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      const response = await fetch(`http://localhost:5500/events/${eventToDelete}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         }
-    };
+      });
+      if (response.ok) {
+        deleteEvent(eventToDelete);
+        setShowConfirmModal(false);
+      } else {
+        console.error('Error deleting event:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+    }
+  };
 
-    return (
-        <div className="container mt-4">
-            <Table striped bordered hover variant="dark">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nombre del Servicio</th>
-                        <th>Tipo</th>
-                        <th>Precio</th>
-                        <th>Descripción</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {services.map((service, index) => (
-                        <tr key={service.id}>
-                            <td>{index + 1}</td>
-                            <td>{service.name}</td>
-                            <td>{service.type}</td>
-                            <td>${service.price.toFixed(2)}</td>
-                            <td>{service.description}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </div>
-    );
+  return (
+    <div>
+      <h3>Mis Eventos</h3>
+      <Card bg="dark" text="light">
+        <Card.Body>
+          <Card.Title className='text-danger'>Todos tus Eventos</Card.Title>
+          <ListGroup variant="flush">
+            {events.length > 0 ? (
+              events.map((event) => (
+                <ListGroup.Item key={event.id} className="bg-dark text-light">
+                  <h4>Evento: {event.name}</h4>
+                  <p>Fecha: {new Date(event.date).toLocaleDateString()}</p>
+                  <p>Tipo de evento: {event.eventype}</p>
+                  <p>Ubicación: {event.location.charAt(0).toUpperCase() + event.location.slice(1)}</p> {/* Capitalizando primera letra */}
+                  <p>Invitados: {event.guests}</p>
+                  <p>Detalle: {event.details}</p>
+                  <div className="d-flex justify-content-between">
+                    <Button variant="warning" className="me-2" onClick={() => handleEdit(event)}>
+                      <FontAwesomeIcon icon={faEdit} /> 
+                    </Button>
+                    <Button variant="danger" onClick={() => handleDelete(event.id)}>
+                      <FontAwesomeIcon icon={faTrash} /> 
+                    </Button>
+                  </div>
+                </ListGroup.Item>
+              ))
+            ) : (
+              <p>No tienes ninguna reserva de momento.</p>
+            )}
+          </ListGroup>
+        </Card.Body>
+      </Card>
+
+      {currentEvent && (
+        <EditEventModal
+          show={showEditModal}
+          onHide={() => setShowEditModal(false)}
+          event={currentEvent}
+          updateEvent={updateEvent}
+        />
+      )}
+
+<Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+  <Modal.Header closeButton style={{backgroundColor: '#f8d7da'}}>
+    <Modal.Title>⚠️ Confirmar Eliminación ⚠️</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{backgroundColor: '#f8d7da'}}>
+    <p>🚫 ¿Estás seguro de que quieres eliminar este evento? Esta acción no se puede deshacer. 🚫</p>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+      No
+    </Button>
+    <Button variant="danger" onClick={confirmDelete}>
+      Sí
+    </Button>
+  </Modal.Footer>
+</Modal>
+    </div>
+  );
 }
 
 export default MyEvents;

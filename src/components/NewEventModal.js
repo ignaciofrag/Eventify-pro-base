@@ -1,99 +1,142 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
 
 function NewEventModal({ show, onHide, addEvent }) {
-  const [serviceName, setServiceName] = useState('');
-  const [serviceType, setServiceType] = useState('');
-  const [servicePrice, setServicePrice] = useState('');
-  const [serviceDescription, setServiceDescription] = useState('');
-  const [profileId, setProfileId] = useState('');  // Asumiendo que se requiere el ID del perfil
+  const { user } = useAuth();
+  const [newEvent, setNewEvent] = useState({
+    name: '',
+    date: '',
+    location: '',
+    details: '',
+    guests: '',
+    eventype: ''
+  });
+
+  const handleChange = (e) => {
+    setNewEvent({ ...newEvent, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newService = {
-      name: serviceName,
-      type: serviceType,
-      price: parseFloat(servicePrice),
-      description: serviceDescription,
-      profile_id: parseInt(profileId),  // Asegúrate de que el ID del perfil es un número
-    };
-
     try {
-      const response = await fetch('http://localhost:5500/services', {
+      const response = await fetch(`http://localhost:5500/events`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
         },
-        body: JSON.stringify(newService)
+        body: JSON.stringify(newEvent)
       });
-
-      const responseData = await response.json();
       if (response.ok) {
-        alert('Servicio creado con éxito!');
-        addEvent(responseData);  // Si quieres actualizar el estado global o algo similar
+        const data = await response.json();
+        addEvent({
+          id: data.event_id,
+          ...newEvent
+        });
+        onHide();
       } else {
-        alert(`Error al crear servicio: ${responseData.message}`);
+        console.error('Error creating event:', response.statusText);
       }
     } catch (error) {
-      alert('Error al conectarse al servidor');
+      console.error('Error creating event:', error);
     }
-
-    onHide(); // Cerrar el modal después de enviar el formulario
-    // Limpiar los campos del formulario
-    setServiceName('');
-    setServiceType('');
-    setServicePrice('');
-    setServiceDescription('');
-    setProfileId('');
   };
 
+  const eventTypes = [
+    "Cumpleaños",
+    "Matrimonio",
+    "Aniversario",
+    "Año Nuevo",
+    "Baby shower",
+    "Bautizo",
+    "Bodas de oro",
+    "Bodas de plata",
+    "Compromiso",
+    "Cena",
+    "Eventos de empresa",
+    "Fiesta de amigos",
+    "Fiesta de bienvenida",
+    "Fiesta de despedida",
+    "Graduación",
+    "Halloween",
+    "Inauguración de casa",
+    "Jubilación",
+    "Navidad",
+    "Primera comunión",
+    "Reunión de exalumnos",
+    "Reunión familiar",
+    "San Valentín",
+    "Seminario",
+    "Taller",
+    "Team building",
+    "Torneo",
+    "Webinar",
+    "Workshop",
+    "Otro, especificar en detalles"
+    
+];
+
+  const cities = [
+    "Antofagasta",
+    "Viña del Mar",
+    "Concón",
+    "Iquique",
+    "Concepción",
+    "Rancagua",
+    "Santiago",
+    "Valdivia",
+    "Temuco",
+    "Coquimbo",
+    "La Serena",
+    "Valparaíso",
+    "Pucón",
+    "Puerto Varas"
+  ];
+
   return (
-    <Modal show={show} onHide={onHide} centered>
+    <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
-        <Modal.Title>Publicar Servicio Necesitado</Modal.Title>
+        <Modal.Title>Nuevo Evento</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          <FloatingLabel controlId="serviceName" label="Nombre o título del Servicio" className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="Nombre o título del Servicio"
-              value={serviceName}
-              onChange={e => setServiceName(e.target.value)}
-              required
-            />
-          </FloatingLabel>
-          <FloatingLabel controlId="serviceType" label="Tipo de Evento" className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="Tipo de Evento o lugar que se necesita"
-              value={serviceType}
-              onChange={e => setServiceType(e.target.value)}
-              required
-            />
-          </FloatingLabel>
-          <FloatingLabel controlId="servicePrice" label="Precio" className="mb-3">
-            <Form.Control
-              type="number"
-              placeholder="Precio"
-              value={servicePrice}
-              onChange={e => setServicePrice(e.target.value)}
-              required
-            />
-          </FloatingLabel>
-          <FloatingLabel controlId="serviceDescription" label="Descripción del Servicio" className="mb-3">
-            <Form.Control
-              as="textarea"
-              placeholder="Descripción del Servicio"
-              style={{ height: '100px' }}
-              value={serviceDescription}
-              onChange={e => setServiceDescription(e.target.value)}
-              required
-            />
-          </FloatingLabel>
-          
-          <Button variant="primary" type="submit">
-            Añadir Servicio
+          <Form.Group className="mb-3">
+            <Form.Label>Nombre del Evento *</Form.Label>
+            <Form.Control type="text" name="name" value={newEvent.name} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Fecha *</Form.Label>
+            <Form.Control type="date" name="date" value={newEvent.date} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Ubicación *</Form.Label>
+            <Form.Control as="select" name="location" value={newEvent.location} onChange={handleChange} required>
+              <option value="">Selecciona una ubicación</option>
+              {cities.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Tipo de Evento *</Form.Label>
+            <Form.Control as="select" name="eventype" value={newEvent.eventype} onChange={handleChange} required>
+              <option value="">Selecciona un tipo de evento</option>
+              {eventTypes.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Detalles</Form.Label>
+            <Form.Control type="text" name="details" value={newEvent.details} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Invitados</Form.Label>
+            <Form.Control type="number" name="guests" value={newEvent.guests} onChange={handleChange} required />
+          </Form.Group>
+          <Button variant="danger" type="submit">
+            Crear Evento
           </Button>
         </Form>
       </Modal.Body>

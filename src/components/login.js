@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import {
-  Modal,
-  Button,
-  Form,
-  FloatingLabel,
-  FormControl,
-  FormCheck
-} from "react-bootstrap";
+import { Modal, Button, Form, FloatingLabel, FormControl, FormCheck } from "react-bootstrap";
 import { useAuth } from '../context/AuthContext';
 
 function LoginModal({ show, onHide }) {
@@ -23,39 +16,22 @@ function LoginModal({ show, onHide }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const loginData = { email, password, rememberMe };
+    const loginData = { email, password };
+    const result = await login(loginData);
 
-    try {
-      const response = await fetch("http://localhost:5500/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginData)
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert("Login exitoso!");
-        login(data.user);  // login guarda los datos del usuario, incluyendo el rol
-        if (rememberMe) {
-            localStorage.setItem('userEmail', email); // Guardar email en localStorage
-            localStorage.setItem('userToken', data.token); // Guardar token si es necesario
-        } else {
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userToken');
-        }
-        onHide(); // Cierra el modal
-
-        // Redirige al usuario según su rol
-        if (data.user.role === "Proveedor") {
-            navigate('/providerdashboard'); // Ruta para proveedores
-        } else {
-            navigate('/userdashboard'); // Ruta para usuarios generales
-        }
+    if (result.success) {
+      alert("Login exitoso!");
+      // Guardar el token en localStorage
+      localStorage.setItem('userToken', result.token);
+      if (rememberMe) {
+        localStorage.setItem('userEmail', email); // Guardar email en localStorage
       } else {
-        alert("Error en el inicio de sesión: " + data.message);
+        localStorage.removeItem('userEmail');
       }
-    } catch (error) {
-      alert("Error en el inicio de sesión: " + error.message);
+      onHide();  // Cierra el modal
+      navigate(result.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');  // Redirige basado en el rol
+    } else {
+      alert("Error en el inicio de sesión.");
     }
   };
 

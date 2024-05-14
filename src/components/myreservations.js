@@ -1,46 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { BiCollection, BiChevronRight } from 'react-icons/bi';
+import React, { useEffect, useState } from 'react';
+import { ListGroup } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
 
-const MyReservations = () => {
+function MyReservations() {
+  const { user } = useAuth();
   const [reservations, setReservations] = useState([]);
 
   useEffect(() => {
-    fetchReservations();
-  }, []);
+    const fetchReservations = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch(`http://localhost:5500/reservations`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setReservations(data);
+        } else {
+          console.error('Error fetching reservations:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching reservations:', error);
+      }
+    };
 
-  const fetchReservations = async () => {
-    try {
-      const response = await fetch('http://localhost:5500/reservations');
-      const data = await response.json();
-      setReservations(data);
-    } catch (error) {
-      console.error('Error fetching reservations:', error);
-    }
-  };
+    fetchReservations();
+  }, [user]);
 
   return (
-    <Container className="px-4 py-5 bg-dark text-light" id="featured-3">
-      <h2 className="pb-2 border-bottom">Mis Reservas</h2>
-      <Row className="g-4 py-5" xs={1} lg={3}>
-        {reservations.map((reservation, index) => (
-          <Col key={index}>
-            <div className="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3">
-              <BiCollection size="1.5em" />
-            </div>
-            <h3 className="fs-2 text-light">{reservation.name}</h3>
-            <p className="text-secondary">Cantidad de invitados: {reservation.guestCount}, Fecha: {reservation.date_time_reservation}</p>
-            <a href="/#" className="icon-link">
-              Detalles
-              <BiChevronRight />
-            </a>
-          </Col>
-        ))}
-      </Row>
-    </Container>
+    <div>
+      <h3>Mis Reservas con Proveedores</h3>
+      <ListGroup>
+        {reservations.length > 0 ? (
+          reservations.map((reservation) => (
+            <ListGroup.Item key={reservation.id}>
+              <h4>{reservation.name}</h4>
+              <p>Fecha: {new Date(reservation.date_time).toLocaleDateString()}</p>
+              <p>Estado: {reservation.status}</p>
+            </ListGroup.Item>
+          ))
+        ) : (
+          <p>No tienes ninguna reserva de momento.</p>
+        )}
+      </ListGroup>
+    </div>
   );
-};
+}
 
 export default MyReservations;

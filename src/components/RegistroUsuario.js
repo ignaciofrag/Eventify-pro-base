@@ -1,13 +1,11 @@
-
 import React, { useState } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
-function RegistroUsuario({onUserExists}) {
+function RegistroUsuario({ onUserExists }) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
-    username: "",
     email: "",
     ciudad: "",
     tipoUsuario: "",
@@ -19,44 +17,45 @@ function RegistroUsuario({onUserExists}) {
     portfolioURL: "",
   });
 
-  const navigate = useNavigate(); // Hook para la navegación
+  const navigate = useNavigate();
+  const [isProveedor, setIsProveedor] = useState(false);
 
   const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "tipoUsuario") {
+      setIsProveedor(value === "Proveedor");
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validar que todas las campos requeridos estén presentes
-    const requiredFields = ["nombre", "apellido", "username", "email", "ciudad", "tipoUsuario", "password", "confirmPassword", "telefono"];
+    const requiredFields = ["nombre", "apellido", "email", "ciudad", "tipoUsuario", "password", "confirmPassword", "telefono"];
     const missingFields = requiredFields.filter(field => !formData[field]);
     if (missingFields.length > 0) {
       alert(`Por favor completa los campos requeridos: ${missingFields.join(", ")}`);
       return;
     }
 
-    // Validar que la contraseña cumpla con los requisitos
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
       alert("La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.");
       return;
     }
 
-    // Validar que la confirmación de contraseña coincida
     if (formData.password !== formData.confirmPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
 
-    // Validar el formato del correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       alert("Por favor introduce un correo electrónico válido.");
       return;
     }
 
-    // Si todas las validaciones pasan, proceder a registrar al usuario
     const userToRegister = {
       email: formData.email,
       password: formData.password,
@@ -78,25 +77,42 @@ function RegistroUsuario({onUserExists}) {
         headers: {
           "Content-Type": "application/json"
         },
-        credentials: 'include', // Esto es crucial si estás manejando cookies o autenticación basada en sesiones
         body: JSON.stringify(userToRegister)
       });
 
       if (response.ok) {
         const data = await response.json();
+        localStorage.setItem('userToken', data.access_token);
         alert("Registro exitoso!");
-        navigate('/userdashboard');  // Cambia según el rol si es necesario
+        navigate(formData.tipoUsuario === "Proveedor" ? '/providerdashboard' : '/userdashboard');
       } else if (response.status === 409) {
         alert("Correo electrónico ya registrado. Por favor inicie sesión.");
-        onUserExists()  // Usa lafuncion para redirigir
+        onUserExists();
       } else {
         const errorData = await response.json();
-        alert("Error en el registro: " + errorData.message);
+        alert("Error en el registro: " + errorData.msg);  // Cambié errorData.message por errorData.msg
       }
     } catch (error) {
       alert("Error en el registro: " + error.message);
     }
   };
+
+  const cities = [
+    "Santiago",
+    "Viña del Mar",
+    "Concón",
+    "Iquique",
+    "Concepción",
+    "Rancagua",
+    "Valdivia",
+    "Temuco",
+    "Coquimbo",
+    "La Serena",
+    "Valparaíso",
+    "Pucón",
+    "Puerto Varas",
+    "Antofagasta"
+  ];
 
   return (
     <div className="container bg-dark text-light py-5">
@@ -132,16 +148,6 @@ function RegistroUsuario({onUserExists}) {
                 </div>
               </div>
               <Form.Group>
-                <Form.Label>Nombre de usuario</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="username"
-                  required
-                  placeholder="Nombre de usuario"
-                  onChange={handleChange}
-                />
-              </Form.Group>
-              <Form.Group>
                 <Form.Label>Crea una Contraseña</Form.Label>
                 <Form.Control
                   type="password"
@@ -174,12 +180,16 @@ function RegistroUsuario({onUserExists}) {
               <Form.Group>
                 <Form.Label>Ciudad</Form.Label>
                 <Form.Control
-                  type="text"
+                  as="select"
                   name="ciudad"
                   required
-                  placeholder="Introduce tu ciudad"
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Selecciona una ciudad</option>
+                  {cities.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </Form.Control>
               </Form.Group>
               <Form.Group>
                 <Form.Label>Tipo de Usuario</Form.Label>
@@ -194,7 +204,6 @@ function RegistroUsuario({onUserExists}) {
                   <option value="Cliente">Cliente</option>
                 </Form.Control>
               </Form.Group>
-
               <Form.Group>
                 <Form.Label>Teléfono</Form.Label>
                 <Form.Control
@@ -205,6 +214,37 @@ function RegistroUsuario({onUserExists}) {
                   onChange={handleChange}
                 />
               </Form.Group>
+              {isProveedor && (
+                <>
+                  <Form.Group>
+                    <Form.Label>Descripción de tu empresa</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="descripcion"
+                      placeholder="Describe tu perfil o empresa"
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Nombre de la Compañía</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="companyName"
+                      placeholder="Introduce el nombre de tu compañía"
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>URL del Portafolio</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="portfolioURL"
+                      placeholder="Introduce la URL de tu portafolio"
+                      onChange={handleChange}
+                    />
+                  </Form.Group>
+                </>
+              )}
               <Button variant="primary" type="submit" className="btn-danger">
                 Registrarse
               </Button>

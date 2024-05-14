@@ -1,27 +1,64 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-import React, { createContext, useContext, useState } from 'react';
+const AuthContext = createContext();
 
-const AuthContext = createContext(null);
+export function useAuth() {
+  return useContext(AuthContext);
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const login = (userData) => {
-    setUser({
-      ...userData,
-      isAuthenticated: true
-    });
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('userToken');
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const login = async (loginData) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch("http://localhost:5500/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        localStorage.setItem('userToken', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser({
+          ...data.user,
+          isAuthenticated: true
+        });
+        setIsLoading(false);
+        return { success: true, role: data.user.role, token: data.access_token };
+      } else {
+        setError(data.msg || 'Failed to log in');
+        setIsLoading(false);
+        return { success: false };
+      }
+    } catch (error) {
+      setError(error.message);
+      setIsLoading(false);
+      return { success: false };
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('user');
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, error, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-export const useAuth = () => useContext(AuthContext);
