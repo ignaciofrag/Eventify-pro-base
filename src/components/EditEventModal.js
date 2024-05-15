@@ -102,14 +102,14 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
           <Form.Group className="mb-3">
             <Form.Label>Tipo de Evento</Form.Label>
             <Form.Control as="select" name="eventype" value={editableEvent.eventype} onChange={handleChange} required>
-              <option value="">Selecciona un tipo de evento</option>
+              <option value="">Selecciona tu categoría de evento</option>
               {eventTypes.map(type => (
                 <option key={type} value={type}>{type}</option>
               ))}
             </Form.Control>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Detalles</Form.Label>
+            <Form.Label>Detalles *</Form.Label>
             <Form.Control type="text" name="details" value={editableEvent.details} onChange={handleChange} required />
           </Form.Group>
           <Form.Group className="mb-3">

@@ -30,8 +30,13 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem('userToken', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        if (loginData.rememberMe) {
+          localStorage.setItem('userToken', data.access_token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+        } else {
+          sessionStorage.setItem('userToken', data.access_token);
+          sessionStorage.setItem('user', JSON.stringify(data.user));
+        }
         setUser({
           ...data.user,
           isAuthenticated: true
@@ -56,8 +61,13 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, error, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, isLoading, error, login, logout, setUser, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

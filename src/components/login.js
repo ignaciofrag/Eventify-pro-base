@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, FloatingLabel, FormControl, FormCheck } from "react-bootstrap";
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
 function LoginModal({ show, onHide }) {
   const [email, setEmail] = useState('');
@@ -20,7 +21,12 @@ function LoginModal({ show, onHide }) {
     const result = await login(loginData);
 
     if (result.success) {
-      alert("Login exitoso!");
+      Swal.fire({
+        title: '¡Éxito!',
+        text: '¡Login exitoso! Bienvenido de nuevo.',
+        icon: 'success',
+        confirmButtonText: '¡Vamos!'
+      });
       // Guardar el token en localStorage
       localStorage.setItem('userToken', result.token);
       if (rememberMe) {
@@ -31,7 +37,12 @@ function LoginModal({ show, onHide }) {
       onHide();  // Cierra el modal
       navigate(result.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');  // Redirige basado en el rol
     } else {
-      alert("Error en el inicio de sesión.");
+      Swal.fire({
+        title: '¡Oops!',
+        text: 'Tu email y/o contraseña no coinciden. Por favor, inténtalo de nuevo.',
+        icon: 'error',
+        confirmButtonText: 'Entendido'
+      });
     }
   };
 
