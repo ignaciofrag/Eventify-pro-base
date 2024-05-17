@@ -23,7 +23,7 @@ function LoginModal({ show, onHide }) {
     if (result.success) {
       Swal.fire({
         title: '¡Éxito!',
-        text: '¡Login exitoso! Bienvenido de nuevo.',
+        text: 'Bienvenido de nuevo.',
         icon: 'success',
         confirmButtonText: '¡Vamos!'
       });

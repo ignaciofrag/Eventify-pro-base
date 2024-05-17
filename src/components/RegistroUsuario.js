@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function RegistroUsuario({ onUserExists }) {
   const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ function RegistroUsuario({ onUserExists }) {
 
   const navigate = useNavigate();
   const [isProveedor, setIsProveedor] = useState(false);
+  const { user, setUser } = useAuth();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -79,23 +81,32 @@ function RegistroUsuario({ onUserExists }) {
         },
         body: JSON.stringify(userToRegister)
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('userToken', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser({ ...data.user, isAuthenticated: true });
+        console.log('User data:', data.user); // Verificar datos del usuario
+        console.log('Access token:', data.access_token); // Verificar token
         alert("Registro exitoso!");
-        navigate(formData.tipoUsuario === "Proveedor" ? '/providerdashboard' : '/userdashboard');
       } else if (response.status === 409) {
         alert("Correo electrónico ya registrado. Por favor inicie sesión.");
-        onUserExists();
       } else {
         const errorData = await response.json();
-        alert("Error en el registro: " + errorData.msg);  // Cambié errorData.message por errorData.msg
+        alert("Error en el registro: " + errorData.msg);
       }
     } catch (error) {
       alert("Error en el registro: " + error.message);
     }
   };
+  
+
+  useEffect(() => {
+    if (user && user.isAuthenticated) {
+      navigate(user.profile.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');
+    }
+  }, [user, navigate]);
 
   const cities = [
     "Santiago",

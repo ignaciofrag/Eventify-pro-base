@@ -15,7 +15,15 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('userToken');
     if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
+      try {
+        console.log('Stored User:', storedUser); // Verificar datos guardados
+        console.log('Stored Token:', storedToken); // Verificar datos guardados
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error('Error parsing stored user data:', e);
+        localStorage.removeItem('user');
+        localStorage.removeItem('userToken');
+      }
     }
   }, []);
 
@@ -28,7 +36,7 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData)
       });
-      const data = await response.json();
+      const data = await response.json(); // token, user y msg
       if (response.ok) {
         if (loginData.rememberMe) {
           localStorage.setItem('userToken', data.access_token);
@@ -42,7 +50,7 @@ export const AuthProvider = ({ children }) => {
           isAuthenticated: true
         });
         setIsLoading(false);
-        return { success: true, role: data.user.role, token: data.access_token };
+        return { success: true, role: data.user.profile.role, token: data.access_token }; // Corregir aquí
       } else {
         setError(data.msg || 'Failed to log in');
         setIsLoading(false);
@@ -58,6 +66,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userToken');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('userToken');
+    sessionStorage.removeItem('user'); 
     setUser(null);
   };
 
