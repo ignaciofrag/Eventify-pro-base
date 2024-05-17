@@ -1,6 +1,9 @@
+// src/components/NewEventModal.js
+
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import { fetchWithAuth } from '../utils/api';
 
 function NewEventModal({ show, onHide, addEvent }) {
   const { user } = useAuth();
@@ -20,24 +23,15 @@ function NewEventModal({ show, onHide, addEvent }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5500/events`, {
+      const data = await fetchWithAuth('http://localhost:5500/events', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        },
         body: JSON.stringify(newEvent)
       });
-      if (response.ok) {
-        const data = await response.json();
-        addEvent({
-          id: data.event_id,
-          ...newEvent
-        });
-        onHide();
-      } else {
-        console.error('Error creating event:', response.statusText);
-      }
+      addEvent({
+        id: data.event_id,
+        ...newEvent
+      });
+      onHide();
     } catch (error) {
       console.error('Error creating event:', error);
     }
@@ -74,8 +68,7 @@ function NewEventModal({ show, onHide, addEvent }) {
     "Webinar",
     "Workshop",
     "Otro, especificar en detalles"
-    
-];
+  ];
 
   const cities = [
     "Antofagasta",
@@ -128,11 +121,11 @@ function NewEventModal({ show, onHide, addEvent }) {
             </Form.Control>
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Detalles</Form.Label>
+            <Form.Label>Detalles *</Form.Label>
             <Form.Control type="text" name="details" value={newEvent.details} onChange={handleChange} required />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Invitados</Form.Label>
+            <Form.Label>Nº de Invitados *</Form.Label>
             <Form.Control type="number" name="guests" value={newEvent.guests} onChange={handleChange} required />
           </Form.Group>
           <Button variant="danger" type="submit">

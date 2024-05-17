@@ -1,3 +1,5 @@
+// src/App.js
+
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainNavbar from './components/MainNavbar';
@@ -11,11 +13,13 @@ import RegistroUsuario from './components/RegistroUsuario';
 import ProviderDashboard from './views/ProviderDashboard';
 import ClientRoute from './components/ClientRoute';
 import ProviderRoute from './components/ProviderRoute';
+import UserProfileModal from './components/UserProfileModal';  // Asegúrate de que la ruta es correcta
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   return (
     <Router>
@@ -30,6 +34,7 @@ function App() {
           <Route path="/registrarse" element={<RegistroUsuario />} />
         </Routes>
         <LoginModal show={showLogin} onHide={() => setShowLogin(false)} />
+        <UserProfileModal show={showProfile} onHide={() => setShowProfile(false)} onShowLogin={() => setShowLogin(true)} />
       </AuthProvider>
     </Router>
   );

@@ -1,21 +1,22 @@
+// src/components/UserNavbar.js
+
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import logo from "../imgs/logo.png";
 import { Dropdown } from "react-bootstrap";
 import UserProfileModal from './UserProfileModal';
-import { useAuth } from '../context/AuthContext';  // Usar el hook useAuth
+import { useAuth } from '../context/AuthContext';
 
-function UserNavbar() {
+function UserNavbar({ onLoginClick }) {
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const { user, logout, setUser } = useAuth();  // Destructurando logout desde useAuth
+  const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();  // Llamada a la función de logout del AuthContext
-    localStorage.removeItem('userToken');  // Asegurarse de limpiar el token del almacenamiento local
-    navigate('/');  // Redirigir al usuario a la página de login****REVISAR
+    logout();
+    onLoginClick();
   };
 
   const handleUpdateUser = (updatedUser) => {
@@ -30,6 +31,17 @@ function UserNavbar() {
     }
   };
 
+  const capitalize = (str) => {
+    if (!str) return '';
+    const exceptions = ['de', 'la', 'del', 'y', 'en', 'a']; // Lista de preposiciones y artículos comunes
+    return str
+      .split(' ')
+      .map(word => exceptions.includes(word.toLowerCase())
+        ? word.toLowerCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   return (
     <>
       <header className="p-3 mb-3 border-bottom bg-dark">
@@ -39,13 +51,12 @@ function UserNavbar() {
               <img src={logo} alt="Logo" width="40" height="32" />
             </Link>
             <Link to="/" className="navbar-logo-text text-light text-decoration-none ms-2">
-        Eventify Pro
-      </Link>            
+              Eventify Pro
+            </Link>
             <Dropdown className="text-end ms-auto"
-            onMouseEnter={() => setShowDropdown(true)}
-            onMouseLeave={() => setShowDropdown(false)}
-            show={showDropdown}
-            
+              onMouseEnter={() => setShowDropdown(true)}
+              onMouseLeave={() => setShowDropdown(false)}
+              show={showDropdown}
             >
               <Dropdown.Toggle 
                 as="a" 
@@ -59,7 +70,9 @@ function UserNavbar() {
                   width="32"
                   height="32"
                 />
-                <span className="ms-2 text-light">{user?.first_name} {user?.last_name}</span>
+                <span className="ms-2 text-light">
+                {capitalize(user?.first_name)} {capitalize(user?.last_name)}
+                  </span>
               </Dropdown.Toggle>
               <Dropdown.Menu className="text-small bg-dark" style={{ borderColor: 'transparent' }}>
                 <Dropdown.Item className="text-light" onClick={handleDashboard}>Ir a mi Dashboard</Dropdown.Item>

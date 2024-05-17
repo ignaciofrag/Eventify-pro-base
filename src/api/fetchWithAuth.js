@@ -1,4 +1,5 @@
-export const fetchWithAuth = async (url, options = {}) => {
+/*
+// export const fetchWithAuth = async (url, options = {}) => {
     const token = localStorage.getItem('userToken');
     const response = await fetch(url, {
       ...options,
@@ -22,5 +23,5 @@ export const fetchWithAuth = async (url, options = {}) => {
     }
   
     return response.json();
-  };
-  
+  }; //
+*/

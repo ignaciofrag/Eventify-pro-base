@@ -1,3 +1,5 @@
+// src/components/LoginModal.js
+
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, FloatingLabel, FormControl, FormCheck } from "react-bootstrap";
@@ -27,15 +29,12 @@ function LoginModal({ show, onHide }) {
         icon: 'success',
         confirmButtonText: '¡Vamos!'
       });
-      // Guardar el token en localStorage
-      localStorage.setItem('userToken', result.token);
       if (rememberMe) {
-        localStorage.setItem('userEmail', email); // Guardar email en localStorage
-      } else {
-        localStorage.removeItem('userEmail');
+        sessionStorage.setItem('userToken', result.token);
+        sessionStorage.setItem('user', JSON.stringify(result.user));
       }
-      onHide();  // Cierra el modal
-      navigate(result.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');  // Redirige basado en el rol
+      onHide();
+      navigate(result.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');
     } else {
       Swal.fire({
         title: '¡Oops!',

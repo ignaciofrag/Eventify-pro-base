@@ -1,9 +1,13 @@
+// src/components/RegistroUsuario.js
+
 import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Swal from 'sweetalert2';
 
-function RegistroUsuario({ onUserExists }) {
+
+function RegistroUsuario() {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
@@ -20,7 +24,7 @@ function RegistroUsuario({ onUserExists }) {
 
   const navigate = useNavigate();
   const [isProveedor, setIsProveedor] = useState(false);
-  const { user, setUser } = useAuth();
+  const { setUser } = useAuth();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -37,24 +41,69 @@ function RegistroUsuario({ onUserExists }) {
     const requiredFields = ["nombre", "apellido", "email", "ciudad", "tipoUsuario", "password", "confirmPassword", "telefono"];
     const missingFields = requiredFields.filter(field => !formData[field]);
     if (missingFields.length > 0) {
-      alert(`Por favor completa los campos requeridos: ${missingFields.join(", ")}`);
+      Swal.fire({
+        title: '¡Oops!',
+        text: `Por favor completa los campos requeridos: ${missingFields.join(", ")}`,
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      });
       return;
     }
 
+
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
-      alert("La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.");
+      Swal.fire({
+        title: '¡Oops!',
+        text: 'La contraseña debe tener al menos 8 caracteres, incluyendo letras y números.',
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      });
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Las contraseñas no coinciden.");
+      Swal.fire({
+        title: '¡Oops!',
+        text: 'Las contraseñas no coinciden.',
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert("Por favor introduce un correo electrónico válido.");
+      Swal.fire({
+        title: '¡Oops!',
+        text: 'Por favor introduce un correo electrónico válido.',
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      });
       return;
     }
 
@@ -81,32 +130,80 @@ function RegistroUsuario({ onUserExists }) {
         },
         body: JSON.stringify(userToRegister)
       });
-  
+
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('userToken', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.setItem('userToken', data.access_token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
         setUser({ ...data.user, isAuthenticated: true });
-        console.log('User data:', data.user); // Verificar datos del usuario
-        console.log('Access token:', data.access_token); // Verificar token
-        alert("Registro exitoso!");
+        Swal.fire({
+          title: '¡Registro exitoso! 🎉',
+          text: '¡Bienvenido a nuestra plataforma!',
+          icon: 'success',
+          confirmButtonText: 'Vamos allá',
+          showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+          },
+          hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+          }
+        });
+        navigate(data.user.profile.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');
       } else if (response.status === 409) {
-        alert("Correo electrónico ya registrado. Por favor inicie sesión.");
-      } else {
+        Swal.fire({
+          title: '¡Correo ya registrado! 📧',
+          text: 'Por favor, inicie sesión.',
+          icon: 'warning',
+          confirmButtonText: 'Entendido',
+          showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+          },
+          hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+          }
+        });
+            } else {
         const errorData = await response.json();
-        alert("Error en el registro: " + errorData.msg);
+        Swal.fire({
+          title: '¡Error en el registro! 😢',
+          text: `Error: ${errorData.msg}`,
+          icon: 'error',
+          confirmButtonText: 'Entendido',
+          showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+          },
+          hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+          }
+        });
       }
     } catch (error) {
-      alert("Error en el registro: " + error.message);
+      Swal.fire({
+        title: '¡Error en el registro! 😢',
+        text: `Error: ${error.message}`,
+        icon: 'error',
+        confirmButtonText: 'Entendido',
+        showClass: {
+          popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+          popup: 'animate__animated animate__fadeOutUp'
+        }
+      });
     }
   };
-  
 
   useEffect(() => {
-    if (user && user.isAuthenticated) {
-      navigate(user.profile.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      if (parsedUser && parsedUser.isAuthenticated) {
+        navigate(parsedUser.profile.role === "Proveedor" ? '/providerdashboard' : '/userdashboard');
+      }
     }
-  }, [user, navigate]);
+  }, [navigate]);
 
   const cities = [
     "Santiago",

@@ -1,6 +1,9 @@
+// src/components/MyReservations.js
+
 import React, { useEffect, useState } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import { fetchWithAuth } from '../utils/api';
 
 function MyReservations() {
   const { user } = useAuth();
@@ -10,17 +13,8 @@ function MyReservations() {
     const fetchReservations = async () => {
       if (!user) return;
       try {
-        const response = await fetch(`http://localhost:5500/reservations`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setReservations(data);
-        } else {
-          console.error('Error fetching reservations:', response.statusText);
-        }
+        const data = await fetchWithAuth('http://localhost:5500/reservations');
+        setReservations(data);
       } catch (error) {
         console.error('Error fetching reservations:', error);
       }

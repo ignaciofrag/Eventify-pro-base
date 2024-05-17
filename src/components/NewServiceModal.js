@@ -1,70 +1,65 @@
+// src/components/NewServiceModal.js
+
 import React, { useState } from 'react';
-import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
+import { fetchWithAuth } from '../utils/api';
 
 function NewServiceModal({ show, onHide, addService }) {
-  const [serviceData, setServiceData] = useState({
+  const { user } = useAuth();
+  const [newService, setNewService] = useState({
     name: '',
-    description: '',
-    price: ''
+    type: '',
+    price: '',
+    description: ''
   });
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setServiceData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  const handleChange = (e) => {
+    setNewService({ ...newService, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    addService(serviceData);  // revisar Función para añadir el nuevo servicio
-    onHide();  // Cierra la modal
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await fetchWithAuth('http://localhost:5500/services', {
+        method: 'POST',
+        body: JSON.stringify(newService)
+      });
+      addService({
+        id: data.service_id,
+        ...newService
+      });
+      onHide();
+    } catch (error) {
+      console.error('Error creating service:', error);
+    }
   };
 
   return (
-    <Modal show={show} onHide={onHide} centered backdrop="static" className="text-light" contentClassName="bg-dark">
-      <Modal.Header closeButton className="border-bottom border-secondary">
-        <Modal.Title>Añadir Nuevo Servicio</Modal.Title>
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>
+        <Modal.Title>Nuevo Servicio</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          <FloatingLabel controlId="serviceName" label="Nombre del Servicio" className="mb-3 text-dark">
-            <Form.Control
-              type="text"
-              name="name"
-              placeholder="Nombre del Servicio"
-              value={serviceData.name}
-              onChange={handleChange}
-              className="bg-dark text-light"
-              required
-            />
-          </FloatingLabel>
-          <FloatingLabel controlId="serviceDescription" label="Descripción del Servicio" className="mb-3 text-dark">
-            <Form.Control
-              as="textarea"
-              name="description"
-              placeholder="Descripción del Servicio"
-              style={{ height: '100px' }}
-              value={serviceData.description}
-              onChange={handleChange}
-              className="bg-dark text-light"
-              required
-            />
-          </FloatingLabel>
-          <FloatingLabel controlId="servicePrice" label="Precio" className="mb-3 text-dark">
-            <Form.Control
-              type="number"
-              name="price"
-              placeholder="Precio"
-              value={serviceData.price}
-              onChange={handleChange}
-              className="bg-dark text-light"
-              required
-            />
-          </FloatingLabel>
+          <Form.Group className="mb-3">
+            <Form.Label>Nombre del Servicio *</Form.Label>
+            <Form.Control type="text" name="name" value={newService.name} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Tipo de Servicio *</Form.Label>
+            <Form.Control type="text" name="type" value={newService.type} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Precio *</Form.Label>
+            <Form.Control type="number" name="price" value={newService.price} onChange={handleChange} required />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Descripción *</Form.Label>
+            <Form.Control type="text" name="description" value={newService.description} onChange={handleChange} required />
+          </Form.Group>
           <Button variant="danger" type="submit">
-            Añadir Servicio
+            Crear Servicio
           </Button>
         </Form>
       </Modal.Body>

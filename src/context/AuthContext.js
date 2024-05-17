@@ -1,3 +1,5 @@
+// src/context/AuthContext.js
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -16,9 +18,7 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('userToken');
     if (storedUser && storedToken) {
       try {
-        console.log('Stored User:', storedUser); // Verificar datos guardados
-        console.log('Stored Token:', storedToken); // Verificar datos guardados
-        setUser(JSON.parse(storedUser));
+        setUser({ ...JSON.parse(storedUser), isAuthenticated: true });
       } catch (e) {
         console.error('Error parsing stored user data:', e);
         localStorage.removeItem('user');
@@ -36,21 +36,13 @@ export const AuthProvider = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginData)
       });
-      const data = await response.json(); // token, user y msg
+      const data = await response.json();
       if (response.ok) {
-        if (loginData.rememberMe) {
-          localStorage.setItem('userToken', data.access_token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-        } else {
-          sessionStorage.setItem('userToken', data.access_token);
-          sessionStorage.setItem('user', JSON.stringify(data.user));
-        }
-        setUser({
-          ...data.user,
-          isAuthenticated: true
-        });
+        localStorage.setItem('userToken', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser({ ...data.user, isAuthenticated: true });
         setIsLoading(false);
-        return { success: true, role: data.user.profile.role, token: data.access_token }; // Corregir aquí
+        return { success: true, role: data.user.profile.role, token: data.access_token };
       } else {
         setError(data.msg || 'Failed to log in');
         setIsLoading(false);
@@ -67,7 +59,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userToken');
     localStorage.removeItem('user');
     sessionStorage.removeItem('userToken');
-    sessionStorage.removeItem('user'); 
+    sessionStorage.removeItem('user');
     setUser(null);
   };
 

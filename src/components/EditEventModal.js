@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { useAuth } from '../context/AuthContext';
+import { fetchWithAuth } from '../utils/api';
 
 function EditEventModal({ show, onHide, event, updateEvent }) {
   const [editableEvent, setEditableEvent] = useState(event);
@@ -15,21 +17,12 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5500/events/${editableEvent.id}`, {
+      const data = await fetchWithAuth(`http://localhost:5500/events/${editableEvent.id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        },
         body: JSON.stringify(editableEvent)
       });
-      if (response.ok) {
-        const data = await response.json();
-        updateEvent(editableEvent); // Actualiza el evento en el estado de UserDashboard
-        onHide();
-      } else {
-        console.error('Error updating event:', response.statusText);
-      }
+      updateEvent(data); // Actualiza el evento en el estado de UserDashboard
+      onHide();
     } catch (error) {
       console.error('Error updating event:', error);
     }
@@ -123,7 +116,7 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
             <Form.Control type="text" name="details" value={editableEvent.details} onChange={handleChange} required />
           </Form.Group>
           <Form.Group className="mb-3">
-            <Form.Label>Invitados</Form.Label>
+            <Form.Label> Nº de Invitados</Form.Label>
             <Form.Control type="number" name="guests" value={editableEvent.guests} onChange={handleChange} required />
           </Form.Group>
           <Button variant="danger" type="submit">
