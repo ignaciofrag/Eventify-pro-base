@@ -53,6 +53,12 @@ function UserNavbar({ onLoginClick }) {
             <Link to="/" className="navbar-logo-text text-light text-decoration-none ms-2">
               Eventify Pro
             </Link>
+            <nav className="nav col-12 col-lg-auto ms-lg-3 mb-2 justify-content-center mb-md-0">
+              <Link to="/" className="nav-link px-2 text-light">Inicio</Link>
+              <Link to="/providers" className="nav-link px-2 text-light">Proveedores</Link>
+              <Link to="/faq" className="nav-link px-2 text-light">FAQ</Link>
+              <Link to="/about" className="nav-link px-2 text-light">Acerca de</Link>
+            </nav>
             <Dropdown className="text-end ms-auto"
               onMouseEnter={() => setShowDropdown(true)}
               onMouseLeave={() => setShowDropdown(false)}

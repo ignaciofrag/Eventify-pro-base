@@ -5,6 +5,8 @@ import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
+import GoogleLoginButton from './GoogleLoginButton'; // Importa el nuevo componente
+
 
 
 function RegistroUsuario() {

@@ -1,5 +1,3 @@
-// src/utils/api.js
-
 export function authHeader() {
   const token = localStorage.getItem('userToken');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -26,7 +24,7 @@ export async function fetchWithAuth(url, options = {}) {
       throw new Error(error.message);
     }
 
-    return response.json();
+    return response.json(); // Convertir la respuesta en JSON
   } catch (error) {
     return Promise.reject(error);
   }

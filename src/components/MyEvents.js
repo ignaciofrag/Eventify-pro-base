@@ -51,7 +51,7 @@ function MyEvents({ events, updateEvent, deleteEvent, handleEditEvent }) {
                 </ListGroup.Item>
               ))
             ) : (
-              <p>No tienes ninguna reserva de momento.</p>
+              <p>No tienes ningún evento de momento.</p>
             )}
           </ListGroup>
         </Card.Body>

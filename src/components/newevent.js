@@ -27,6 +27,7 @@ function NewEventModal(props) {
     props.onHide(); // Cierra el modal
   };
 
+  
   return (
     <Modal
       {...props}

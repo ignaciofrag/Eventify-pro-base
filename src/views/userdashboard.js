@@ -7,15 +7,18 @@ import MyEvents from '../components/MyEvents';
 import MyReservations from '../components/MyReservations';
 import NewEventModal from '../components/NewEventModal';
 import EditEventModal from '../components/EditEventModal';
+import UserProfileModal from '../components/UserProfileModal';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
+
 
 function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [editModalShow, setEditModalShow] = useState(false);
+  const [profileModalShow, setProfileModalShow] = useState(false);
   const [events, setEvents] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
-  const { user, logout } = useAuth();
+  const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,9 +28,16 @@ function UserDashboard() {
       const fetchUserEvents = async () => {
         try {
           const data = await fetchWithAuth(`http://localhost:5500/user/${user.id}/events`);
-          setEvents(data);
+          console.log('Datos obtenidos:', data); // Depuración
+          if (Array.isArray(data)) {
+            setEvents(data);
+          } else {
+            setEvents([]);
+            console.error('Error: Los datos obtenidos no son un array');
+          }
         } catch (error) {
           console.error('Error fetching user events:', error);
+          setEvents([]);
         }
       };
       fetchUserEvents();
@@ -39,11 +49,19 @@ function UserDashboard() {
   };
 
   const updateEvent = (updatedEvent) => {
-    setEvents(events.map(event => event.id === updatedEvent.id ? updatedEvent : event));
+    if (Array.isArray(events)) {
+      setEvents(events.map(event => event.id === updatedEvent.id ? updatedEvent : event));
+    } else {
+      console.error('Error: events no es un array', events);
+    }
   };
 
   const deleteEvent = (eventId) => {
-    setEvents(events.filter(event => event.id !== eventId));
+    if (Array.isArray(events)) {
+      setEvents(events.filter(event => event.id !== eventId));
+    } else {
+      console.error('Error: events no es un array', events);
+    }
   };
 
   const handleLogout = () => {
@@ -58,13 +76,17 @@ function UserDashboard() {
 
   const capitalize = (str) => {
     if (!str) return '';
-    const exceptions = ['de', 'la', 'del', 'y', 'en', 'a']; // Lista de preposiciones y artículos comunes
+    const exceptions = ['de', 'la', 'del', 'y', 'en', 'a'];
     return str
       .split(' ')
       .map(word => exceptions.includes(word.toLowerCase())
         ? word.toLowerCase()
         : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
   };
 
   return (
@@ -80,10 +102,10 @@ function UserDashboard() {
                 <FontAwesomeIcon icon={faHome} /> Home
               </Link>
             </ListGroup.Item>
-            <ListGroup.Item className="bg-dark text-light">
-              <Link to="/profile" className="text-decoration-none text-light">
+            <ListGroup.Item className="bg-dark text-light" onClick={() => setProfileModalShow(true)}>
+              <span className="text-decoration-none text-light" style={{ cursor: 'pointer' }}>
                 <FontAwesomeIcon icon={faUser} /> Perfil
-              </Link>
+              </span>
             </ListGroup.Item>
             <ListGroup.Item className="bg-dark text-light" onClick={() => navigate('/reservations')}>
               <FontAwesomeIcon icon={faBook} /> Mis Reservas
@@ -131,6 +153,13 @@ function UserDashboard() {
           updateEvent={updateEvent}
         />
       )}
+
+      <UserProfileModal
+        show={profileModalShow}
+        onHide={() => setProfileModalShow(false)}
+        user={user}
+        updateUser={handleUpdateUser}
+      />
     </div>
   );
 }

@@ -1,5 +1,3 @@
-// src/context/AuthContext.js
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
@@ -64,8 +62,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (updatedUser) => {
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser({ ...updatedUser, isAuthenticated: true }); // Mantén el estado de autenticado
+    localStorage.setItem('user', JSON.stringify({ ...updatedUser, isAuthenticated: true }));
   };
 
   return (
