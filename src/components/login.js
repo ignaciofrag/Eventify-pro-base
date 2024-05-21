@@ -1,10 +1,9 @@
-// src/components/LoginModal.js
-
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, FloatingLabel, FormControl, FormCheck } from "react-bootstrap";
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
+import { Link } from 'react-router-dom';
 
 function LoginModal({ show, onHide }) {
   const [email, setEmail] = useState('');
@@ -45,6 +44,11 @@ function LoginModal({ show, onHide }) {
     }
   };
 
+  const handleRegisterClick = () => {
+    onHide();
+    navigate('/registrarse');
+  };
+
   if (!show) return null;
 
   return (
@@ -69,6 +73,10 @@ function LoginModal({ show, onHide }) {
             Iniciar sesión
           </Button>
         </Form>
+        <div className="mt-3 text-center">
+          <span className="text-light">¿No tienes cuenta? 😊 </span>
+          <span className="text-light fw-bold" style={{ cursor: 'pointer' }} onClick={handleRegisterClick}>Regístrate aquí</span>
+        </div>
       </Modal.Body>
     </Modal>
   );

@@ -5,9 +5,6 @@ import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
-import GoogleLoginButton from './GoogleLoginButton'; // Importa el nuevo componente
-
-
 
 function RegistroUsuario() {
   const [formData, setFormData] = useState({
@@ -57,7 +54,6 @@ function RegistroUsuario() {
       });
       return;
     }
-
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRegex.test(formData.password)) {
@@ -166,7 +162,7 @@ function RegistroUsuario() {
             popup: 'animate__animated animate__fadeOutUp'
           }
         });
-            } else {
+      } else {
         const errorData = await response.json();
         Swal.fire({
           title: '¡Error en el registro! 😢',
