@@ -1,5 +1,4 @@
 // src/components/MyServices.js
-
 import React from 'react';
 import { ListGroup, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,6 +14,7 @@ function MyServices({ services, updateService, deleteService, handleEditService 
             <p>Tipo: {service.type}</p>
             <p>Precio: {service.price}</p>
             <p>Descripción: {service.description}</p>
+            <p>Lugar: {service.location}</p>  {/* Asegúrate de que la ubicación se muestre aquí */}
             <div className="d-flex justify-content-between">
               <Button variant="warning" className="me-2" onClick={() => handleEditService(service)}>
                 <FontAwesomeIcon icon={faEdit} />

@@ -1,13 +1,11 @@
-// src/views/ProviderDashboard.js
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Offcanvas, ListGroup, Button, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faCalendar, faEnvelope, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import MyServices from '../components/MyServices'; // Importa el nuevo componente MyServices
+import MyServices from '../components/MyServices';
 import NewServiceModal from '../components/NewServiceModal';
-import EditServiceModal from '../components/EditServiceModal'; // Asegúrate de tener este componente
+import EditServiceModal from '../components/EditServiceModal';
 import UserProfileModal from '../components/UserProfileModal';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
@@ -21,25 +19,26 @@ function ProviderDashboard() {
   const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
 
+  const fetchProviderServices = async () => {
+    try {
+      const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/services`);
+      console.log('Datos obtenidos:', data);
+      if (Array.isArray(data)) {
+        setServices(data);
+      } else {
+        setServices([]);
+        console.error('Error: Los datos obtenidos no son un array');
+      }
+    } catch (error) {
+      console.error('Error fetching provider services:', error);
+      setServices([]);
+    }
+  };
+
   useEffect(() => {
     if (!user || !user.isAuthenticated) {
       navigate('/login');
     } else {
-      const fetchProviderServices = async () => {
-        try {
-          const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/services`);
-          console.log('Datos obtenidos:', data); // Depuración
-          if (Array.isArray(data)) {
-            setServices(data);
-          } else {
-            setServices([]);
-            console.error('Error: Los datos obtenidos no son un array');
-          }
-        } catch (error) {
-          console.error('Error fetching provider services:', error);
-          setServices([]);
-        }
-      };
       fetchProviderServices();
     }
   }, [user, navigate]);
@@ -54,6 +53,8 @@ function ProviderDashboard() {
     } else {
       console.error('Error: services no es un array', services);
     }
+    setEditModalShow(false); // Cierra el modal después de la actualización
+    fetchProviderServices(); // Refresca la lista de servicios
   };
 
   const deleteService = (serviceId) => {
@@ -70,8 +71,10 @@ function ProviderDashboard() {
   };
 
   const handleEditService = (service) => {
-    setCurrentService(service);
-    setEditModalShow(true);
+    if (service) {
+      setCurrentService(service);
+      setEditModalShow(true);
+    }
   };
 
   const capitalize = (str) => {

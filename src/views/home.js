@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Dropdown, DropdownButton, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
+import { Accordion, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CityView from './Cityview';
-import defaultImage from '../imgs/defaultService.png'
+import defaultImage from '../imgs/defaultService.png';
 
-// Imporcionde imágenes
+// Importar imágenes
 import antofagasta from '../imgs/antofagasta.jpg';
 import vinaDelMar from '../imgs/viñadelmar.jpg';
 import concon from '../imgs/concon.jpg';
@@ -21,10 +21,76 @@ import valparaiso from '../imgs/Valparaiso.jpg';
 import pucon from '../imgs/Pucon.JPG';
 import puertoVaras from '../imgs/PuertoVaras.jpg';
 
+const categories = {
+  "Planificación y Coordinación": [
+    "Planificación y coordinación de eventos 📋",
+    "Planificación de bodas 💍",
+    "Planificación de fiestas temáticas 🎉",
+    "Planificación de cumpleaños y fiestas infantiles 🎂",
+    "Planificación de eventos en cruceros 🚢",
+    "Coordinación de conferencias y seminarios 📊",
+    "Gestión de eventos corporativos 🏢",
+    "Consultoría de eventos 💼",
+    "Coordinación de eventos virtuales y webinars 💻",
+    "Consultoría de riesgos y seguros para eventos 📑"
+  ],
+  "Decoración y Servicios": [
+    "Decoración de eventos 🎨",
+    "Floristería y arreglo de flores 💐",
+    "Iluminación y efectos especiales 💡",
+    "Diseño de stands y exhibiciones 🖼️",
+    "Diseño y producción de invitaciones ✉️",
+    "Diseño y producción de merchandising 🎁",
+    "Diseño de menús y servicios de chef privado 🍴",
+    "Servicios de impresión y señalización 🖨️"
+  ],
+  "Catering y Bebidas": [
+    "Catering y servicios de alimentos 🍽️",
+    "Bebidas y bar móvil 🍹",
+    "Servicios de catering especializado (vegano, kosher, etc.) 🥗",
+    "Food Trucks 🚚"
+  ],
+  "Arriendo de Equipos y Logística": [
+    "Arriendo de mobiliario 🪑",
+    "Arriendo de carpas y toldos ⛺",
+    "Arriendo de equipos de tecnología 🖥️",
+    "Arriendo de escenarios y tarimas 🎪",
+    "Transporte y logística 🚚",
+    "Control de clima y calefacción ❄️",
+    "Servicios de limpieza y mantenimiento 🧹"
+  ],
+  "Animación y Entretenimiento": [
+    "Animación y entretenimiento 🎭",
+    "DJ y música en vivo 🎶",
+    "Espectáculos de fuegos artificiales 🎆",
+    "Producción de espectáculos y shows 🎬",
+    "Animación infantil 🤹",
+    "Conciertos y festivales 🎤",
+    "Eventos deportivos ⚽"
+  ],
+  "Fotografía y Videografía": [
+    "Fotografía profesional 📸",
+    "Videografía 🎥"
+  ],
+  "Servicios Adicionales": [
+    "Hostess y personal de recepción 🙋",
+    "Seguridad y control de acceso 🔐",
+    "Servicios de traducción e interpretación 🌎",
+    "Registro y gestión de asistentes 📝",
+    "Creación de páginas web para eventos 🌐",
+    "Gestión de redes sociales para eventos 📱",
+    "Programas de incentivos y team building 🤝",
+    "Coordinación de viajes y alojamiento 🛏️",
+    "Marketing y promoción de eventos 📢",
+    "Servicios de protocolo y etiqueta 🎩",
+    "Eventos benéficos y recaudación de fondos 💸",
+    "Servicios de maquillaje y peluquería 💄"
+  ]
+};
 
 function Home() {
   const [services, setServices] = useState([]);  // Estado para almacenar los servicios disponibles
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [visited, setVisited] = useState([]);   // Estado para manejar las opciones visitadas
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,12 +111,12 @@ function Home() {
     fetchServices();
   }, []);
 
-  const handleToggleDropdown = (isOpen) => {
-    setShowDropdown(isOpen);
+  const handleAccordionItemClick = (type) => {
+    setVisited([...visited, type]);
+    navigate(`/services/type/${encodeURIComponent(type)}`);
   };
 
   const limitedServices = services.slice(0, 3);
-
 
   const featuredProviders = [
     { id: 1, name: "Banquete Palace", location: "Santiago", timesHired: 150 },
@@ -79,7 +145,6 @@ function Home() {
     navigate(`/city/${city}`);
   };
 
-
   return (
     <div>
       <main>
@@ -88,23 +153,30 @@ function Home() {
             <div className="col-lg-6 col-md-8 mx-auto">
               <h1 className="fw-light text-light">Encuentra y reserva proveedores de eventos</h1>
               <p className="lead text-light">Cubrimos todos los aspectos de tu evento, desde la selección del lugar perfecto hasta los fotógrafos más destacados. Reserva aquí y asegura un evento inolvidable.</p>
-              <DropdownButton
-                as={Dropdown.MenuShow}
-                align="end"
-                title="Busca un proveedor"
-                id="dropdown-custom-components"
-                variant="danger"
-                show={showDropdown}
-                onToggle={handleToggleDropdown}
-              >
-                <Dropdown.Item eventKey="1">Lugares para eventos</Dropdown.Item>
-                <Dropdown.Item eventKey="2">Catering</Dropdown.Item>
-                <Dropdown.Item eventKey="3">Música y entretenimiento</Dropdown.Item>
-                <Dropdown.Item eventKey="4">Decoración</Dropdown.Item>
-                <Dropdown.Item eventKey="5">Iluminación</Dropdown.Item>
-                <Dropdown.Item eventKey="6">DJ</Dropdown.Item>
-                <Dropdown.Item eventKey="7">Mueblería</Dropdown.Item>
-              </DropdownButton>
+              <Accordion defaultActiveKey="-1" style={{ backgroundColor: '#000', color: '#fff' }}>
+                {Object.entries(categories).map(([category, types], index) => (
+                  <Accordion.Item eventKey={index} key={index}>
+                    <Accordion.Header style={{ backgroundColor: '#000', color: '#fff', fontWeight: 'bold' }}>
+                      {category}
+                    </Accordion.Header>
+                    <Accordion.Body style={{ backgroundColor: '#fff', color: '#000' }}>
+                      {types.map((type, idx) => (
+                        <Button 
+                          key={idx} 
+                          variant="link" 
+                          onClick={() => handleAccordionItemClick(type)} 
+                          className={`text-decoration-none ${visited.includes(type) ? 'text-primary' : 'text-black'}`}
+                          style={{ textDecoration: 'none', color: visited.includes(type) ? 'blue' : 'black' }}
+                          onMouseEnter={(e) => e.target.style.color = 'red'}
+                          onMouseLeave={(e) => e.target.style.color = visited.includes(type) ? 'blue' : 'black'}
+                        >
+                          {type}
+                        </Button>
+                      ))}
+                    </Accordion.Body>
+                  </Accordion.Item>
+                ))}
+              </Accordion>
             </div>
           </div>
         </section>
@@ -137,8 +209,8 @@ function Home() {
           <Row xs={1} md={2} lg={3} className="g-4">
             {properties.map((property, index) => (
               <Col key={index}>
-    <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
-                <Card.Img variant="top" src={property.img} />
+                <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
+                  <Card.Img variant="top" src={property.img} />
                   <Card.Body>
                     <Card.Title>{property.title}</Card.Title>
                     <Card.Text>
