@@ -19,11 +19,10 @@ function NavigationBar({ onLoginClick }) {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link href="#" className="text-secondary">Home</Nav.Link>
+            <Nav.Link href="/" className="text-secondary">Home</Nav.Link>
             <Nav.Link href="/post">Proveedores</Nav.Link>
-            <Nav.Link href="#">Eventos</Nav.Link>
-            <Nav.Link href="#">FAQs</Nav.Link>
-            <Nav.Link href="#">Acerca de</Nav.Link>
+            <Nav.Link href="/faq">FAQs</Nav.Link>
+            <Nav.Link href="/about">Acerca de</Nav.Link>
           </Nav>
           <Button variant="warning" className="me-2" onClick={onLoginClick}>Iniciar sesión</Button>
           <Link to="/registrarse" className="btn btn-danger">Registrarse</Link>

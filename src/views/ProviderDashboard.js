@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Offcanvas, ListGroup, Button, Badge, Card } from 'react-bootstrap';
+import { Offcanvas, ListGroup, Button, Badge, Card, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faCalendar, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import MyServices from '../components/MyServices';
@@ -16,12 +16,32 @@ function ProviderDashboard() {
   const [editModalShow, setEditModalShow] = useState(false);
   const [profileModalShow, setProfileModalShow] = useState(false);
   const [reservationsModalShow, setReservationsModalShow] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // Agregado
   const [services, setServices] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [confirmedReservations, setConfirmedReservations] = useState([]);
+  const [reservationToCancel, setReservationToCancel] = useState(null); // Estado para almacenar la reserva a cancelar
   const [currentService, setCurrentService] = useState(null);
   const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
+
+  const fetchProviderReservations = useCallback(async () => {
+    try {
+      const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/reservations`);
+      if (Array.isArray(data)) {
+        setReservations(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+        setConfirmedReservations(data.filter(reservation => reservation.status === 'Confirmada'));
+      } else {
+        setReservations([]);
+        setConfirmedReservations([]);
+        console.error('Error: Los datos obtenidos no son un array');
+      }
+    } catch (error) {
+      console.error('Error fetching provider reservations:', error);
+      setReservations([]);
+      setConfirmedReservations([]);
+    }
+  }, [user.id]);
 
   useEffect(() => {
     if (!user || !user.isAuthenticated) {
@@ -42,28 +62,10 @@ function ProviderDashboard() {
         }
       };
 
-      const fetchProviderReservations = async () => {
-        try {
-          const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/reservations`);
-          if (Array.isArray(data)) {
-            setReservations(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
-            setConfirmedReservations(data.filter(reservation => reservation.status === 'Confirmada'));
-          } else {
-            setReservations([]);
-            setConfirmedReservations([]);
-            console.error('Error: Los datos obtenidos no son un array');
-          }
-        } catch (error) {
-          console.error('Error fetching provider reservations:', error);
-          setReservations([]);
-          setConfirmedReservations([]);
-        }
-      };
-
       fetchProviderServices();
       fetchProviderReservations();
     }
-  }, [user, navigate]);
+  }, [user, navigate, fetchProviderReservations]);
 
   const addService = (newService) => {
     setServices(prevServices => [newService, ...prevServices]);
@@ -123,6 +125,24 @@ function ProviderDashboard() {
     }
   };
 
+  const handleCancelReservation = async () => {
+    try {
+      await fetchWithAuth(`http://localhost:5500/reservations/${reservationToCancel}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'CANCELLED' })
+      });
+      setReservations(prevReservations =>
+        prevReservations.map(reservation => reservation.id === reservationToCancel ? { ...reservation, status: 'Cancelada' } : reservation)
+      );
+      setConfirmedReservations(prevConfirmedReservations =>
+        prevConfirmedReservations.filter(reservation => reservation.id !== reservationToCancel)
+      );
+      setShowConfirmModal(false); // Cerrar el modal después de la cancelación
+    } catch (error) {
+      console.error('Error cancelling reservation:', error);
+    }
+  };
+
   const capitalize = (str) => {
     if (!str) return '';
     const exceptions = ['de', 'la', 'del', 'y', 'en', 'a'];
@@ -136,6 +156,11 @@ function ProviderDashboard() {
 
   const formatNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const confirmCancel = (reservationId) => {
+    setReservationToCancel(reservationId);
+    setShowConfirmModal(true);
   };
 
   return (
@@ -208,6 +233,8 @@ function ProviderDashboard() {
                   <p className="mb-1">Correo electrónico: {reservation.client_email}</p>
                   <p className="mb-1">Número de teléfono: {reservation.client_phone}</p>
                   <p className="mb-1">Estado: <Badge bg={reservation.status === 'Confirmada' ? 'success' : 'warning'}>{reservation.status}</Badge></p>
+                  <Button variant="warning" onClick={() => confirmCancel(reservation.id)}>Cancelar</Button>
+
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -221,6 +248,7 @@ function ProviderDashboard() {
           reservations={reservations}
           handleAccept={handleAcceptReservation}
           handleReject={handleRejectReservation}
+          updateReservations={fetchProviderReservations} // Pasa la función de actualización
         />
       </div>
 
@@ -239,6 +267,23 @@ function ProviderDashboard() {
         user={user}
         updateUser={handleUpdateUser}
       />
+    {/* Modal de Confirmación */}
+    <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+        <Modal.Header closeButton style={{ backgroundColor: '#f8d7da' }}>
+          <Modal.Title>⚠️ Confirmar Cancelación ⚠️</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: '#f8d7da' }}>
+          <p>🚫 ¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer. 🚫</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+            No
+          </Button>
+          <Button variant="danger" onClick={handleCancelReservation}>
+            Sí
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

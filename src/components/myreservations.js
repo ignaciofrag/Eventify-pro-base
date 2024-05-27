@@ -78,15 +78,18 @@ function MyReservations({ reservations = [], deleteReservation }) {
               return (
                 <ListGroup.Item key={reservation.id} className="bg-dark text-light">
                   <h4>Reserva con Proveedor: {reservation.company_name}</h4>
+                  <p>Servicio: {reservation.service_name}</p> {/* Título del servicio */}
+                  <p>Tipo: {reservation.service_type}</p> {/* Tipo de evento */}
                   <p className={`text-${getStatusVariant(reservation.status)}`}>
-                    Estado: {reservation.status}
+                    Estado: <span className={`badge badge-${getStatusVariant(reservation.status)}`}>{reservation.status}</span>
                   </p>
                   <p className="dateStyle">Fecha: {formatDate(reservation.date_time_reservation)}</p> {/* Aplica la clase CSS */}
                   <p className={isReservationFinished ? 'text-danger' : 'text-success'}>
                     {daysUntil(reservation.date_time_reservation)}
                   </p>
                   <p>Precio: ${formatNumber(reservation.precio)}</p> {/* Formatea el precio */}
-                  <p><strong>Se cobra por: {capitalizeFirstLetter(reservation.pricingType === 'por hora' ? 'por hora' : 'por evento')}</strong></p> {/* Tipo de cobro */}                  <p>Email de Contacto: {reservation.email_contacto}</p>
+                  <p><strong>Se cobra por: {capitalizeFirstLetter(reservation.pricingType === 'por hora' ? 'por hora' : 'por evento')}</strong></p> {/* Tipo de cobro */}
+                  <p>Email de Contacto: {reservation.email_contacto}</p>
                   <p>Teléfono: {reservation.phone_number}</p>
                   <p>Ubicación: {reservation.address}</p>
     
