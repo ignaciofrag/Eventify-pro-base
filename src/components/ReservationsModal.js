@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Button, ListGroup, Badge } from 'react-bootstrap';
 
-function ReservationsModal({ show, onHide, reservations, handleAccept, handleReject }) {
+function ReservationsModal({ show, onHide, reservations, handleAccept, handleReject, updateReservations }) {
   const formatDate = (dateString) => {
     const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
     const optionsTime = { hour: '2-digit', minute: '2-digit' };
@@ -15,7 +15,17 @@ function ReservationsModal({ show, onHide, reservations, handleAccept, handleRej
   const formatNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
+  const handleAcceptClick = async (reservationId) => {
+    await handleAccept(reservationId);
+    updateReservations(); // Llamar a la función de actualización después de aceptar
+    onHide(); // Cerrar el modal
+  };
 
+  const handleRejectClick = async (reservationId) => {
+    await handleReject(reservationId);
+    updateReservations(); // Llamar a la función de actualización después de rechazar
+    onHide(); // Cerrar el modal
+  };
   return (
     <Modal show={show} onHide={onHide} size="lg">
       <Modal.Header closeButton>
@@ -38,8 +48,8 @@ function ReservationsModal({ show, onHide, reservations, handleAccept, handleRej
                 <div>
                   {reservation.status === 'Pendiente' && (
                     <>
-                      <Button variant="success" className="me-2" onClick={() => handleAccept(reservation.id)}>Aceptar</Button>
-                      <Button variant="danger" onClick={() => handleReject(reservation.id)}>Rechazar</Button>
+                      <Button variant="success" className="me-2" onClick={() => handleAcceptClick(reservation.id)}>Aceptar</Button>
+                      <Button variant="danger" onClick={() => handleRejectClick(reservation.id)}>Rechazar</Button>
                     </>
                   )}
                 </div>
