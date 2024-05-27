@@ -1,9 +1,7 @@
-// src/components/NewEventModal.js
-
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 
 function NewEventModal({ show, onHide, addEvent }) {
   const { user } = useAuth();
@@ -13,7 +11,8 @@ function NewEventModal({ show, onHide, addEvent }) {
     location: '',
     details: '',
     guests: '',
-    eventype: ''
+    eventype: '',
+
   });
 
   const handleChange = (e) => {
@@ -23,15 +22,21 @@ function NewEventModal({ show, onHide, addEvent }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await fetchWithAuth('http://localhost:5500/events', {
+      const response = await fetchWithAuth('http://localhost:5500/events', {
         method: 'POST',
-        body: JSON.stringify(newEvent)
+        body: JSON.stringify(newEvent),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      addEvent({
-        id: data.event_id,
-        ...newEvent
-      });
-      onHide();
+
+      if (response && response.event_id) {
+        const publishedAt = new Date().toISOString();
+        addEvent({ ...newEvent, id: response.event_id, publishedAt });
+        onHide();
+      } else {
+        console.error('Error creating event:', response?.msg || 'Unexpected error');
+      }
     } catch (error) {
       console.error('Error creating event:', error);
     }

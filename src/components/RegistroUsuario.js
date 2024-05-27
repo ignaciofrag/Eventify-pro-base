@@ -1,5 +1,3 @@
-// src/components/RegistroUsuario.js
-
 import React, { useState, useEffect } from "react";
 import { Form, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';

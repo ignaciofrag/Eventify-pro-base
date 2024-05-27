@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Accordion, Card, Button, Container, Row, Col, Badge } from 'react-bootstrap';
+import { Accordion, Card, Button, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CityView from './Cityview';
 import defaultImage from '../imgs/defaultService.png';
 
 // Importar imágenes
@@ -118,11 +117,7 @@ function Home() {
 
   const limitedServices = services.slice(0, 3);
 
-  const featuredProviders = [
-    { id: 1, name: "Banquete Palace", location: "Santiago", timesHired: 150 },
-    { id: 2, name: "Sonido Boom", location: "Viña del Mar", timesHired: 90 },
-    { id: 3, name: "Flores del Campo", location: "Concepción", timesHired: 120 },
-  ];
+ 
 
   const properties = [
     { city: "Antofagasta", title: "Lugares en Antofagasta", img: antofagasta },
@@ -191,21 +186,19 @@ function Home() {
                   <Card.Body>
                     <Card.Title>{service.name}</Card.Title>
                     <Card.Text>{service.description}</Card.Text>
-                    <Button variant="danger" onClick={() => navigate(`/service/${service.id}`)}>
-                      Más información
-                    </Button>
+                    
                   </Card.Body>
                 </Card>
               </Col>
             ))}
           </Row>
           <div className="text-center mt-4">
-            <Button variant="light" onClick={() => navigate('/services')}>Ver más</Button>
+            <Button variant="danger" onClick={() => navigate('/post')}>Ver más</Button>
           </div>
         </Container>
 
         <Container className="py-5 bg-dark">
-          <h2 className="text-center mb-4 text-light">Lugares de Eventos en Chile</h2>
+          <h2 className="text-center mb-4 text-light">Proveedores de Eventos en todo Chile 🗺️</h2>
           <Row xs={1} md={2} lg={3} className="g-4">
             {properties.map((property, index) => (
               <Col key={index}>
@@ -214,7 +207,7 @@ function Home() {
                   <Card.Body>
                     <Card.Title>{property.title}</Card.Title>
                     <Card.Text>
-                      Encuentra el lugar perfecto para tus eventos y celebraciones ubicado en {property.city}.
+                      Encuentra el proveedor perfecto para tus eventos y celebraciones ubicado en {property.city}.
                     </Card.Text>
                     <Button variant="danger" onClick={() => handleMoreInfoClick(property.city)}>
                     Más información
@@ -225,35 +218,12 @@ function Home() {
             ))}
           </Row>
         </Container>
-        <Container className="py-5 bg-dark">
-          <h2 className="text-center mb-4 text-light">Proveedores Destacados ⭐ </h2>
-          <Row xs={1} md={2} lg={3} className="g-4">
-            {featuredProviders.map(provider => (
-              <Col key={provider.id}>
-                <ProviderCard name={provider.name} location={provider.location} timesHired={provider.timesHired} />
-              </Col>
-            ))}
-          </Row>
-        </Container>
+        
       </main>
     </div>
   );
 }
 
-const ProviderCard = ({ name, location, timesHired }) => {
-  return (
-    <Card style={{ backgroundColor: '#333', color: '#fff' }}>
-      <Card.Body>
-        <h5 className="card-title">{name}</h5>
-        <h6 className="card-subtitle mb-2 text-light">{location}</h6>
-        <p className="card-text">Este proveedor ha sido contratado <Badge bg="secondary">{timesHired} veces</Badge>.</p>
-        <div className="d-flex justify-content-between align-items-center">
-          <Button variant="danger">Ver más</Button>
-          <small className="text-light">Actualizado hace 9 mins</small>
-        </div>
-      </Card.Body>
-    </Card>
-  );
-}
+
 
 export default Home;

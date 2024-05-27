@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Offcanvas, ListGroup, Button, Badge } from 'react-bootstrap';
+import { Offcanvas, ListGroup, Button, Badge, Card } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faUser, faCalendar, faEnvelope, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faCalendar, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import MyServices from '../components/MyServices';
 import NewServiceModal from '../components/NewServiceModal';
 import EditServiceModal from '../components/EditServiceModal';
 import UserProfileModal from '../components/UserProfileModal';
+import ReservationsModal from '../components/ReservationsModal';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
 
@@ -14,55 +15,67 @@ function ProviderDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [editModalShow, setEditModalShow] = useState(false);
   const [profileModalShow, setProfileModalShow] = useState(false);
+  const [reservationsModalShow, setReservationsModalShow] = useState(false);
   const [services, setServices] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [confirmedReservations, setConfirmedReservations] = useState([]);
   const [currentService, setCurrentService] = useState(null);
   const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
-
-  const fetchProviderServices = async () => {
-    try {
-      const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/services`);
-      console.log('Datos obtenidos:', data);
-      if (Array.isArray(data)) {
-        setServices(data);
-      } else {
-        setServices([]);
-        console.error('Error: Los datos obtenidos no son un array');
-      }
-    } catch (error) {
-      console.error('Error fetching provider services:', error);
-      setServices([]);
-    }
-  };
 
   useEffect(() => {
     if (!user || !user.isAuthenticated) {
       navigate('/login');
     } else {
+      const fetchProviderServices = async () => {
+        try {
+          const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/services`);
+          if (Array.isArray(data)) {
+            setServices(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+          } else {
+            setServices([]);
+            console.error('Error: Los datos obtenidos no son un array');
+          }
+        } catch (error) {
+          console.error('Error fetching provider services:', error);
+          setServices([]);
+        }
+      };
+
+      const fetchProviderReservations = async () => {
+        try {
+          const data = await fetchWithAuth(`http://localhost:5500/provider/${user.id}/reservations`);
+          if (Array.isArray(data)) {
+            setReservations(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+            setConfirmedReservations(data.filter(reservation => reservation.status === 'Confirmada'));
+          } else {
+            setReservations([]);
+            setConfirmedReservations([]);
+            console.error('Error: Los datos obtenidos no son un array');
+          }
+        } catch (error) {
+          console.error('Error fetching provider reservations:', error);
+          setReservations([]);
+          setConfirmedReservations([]);
+        }
+      };
+
       fetchProviderServices();
+      fetchProviderReservations();
     }
   }, [user, navigate]);
 
   const addService = (newService) => {
-    setServices([...services, newService]);
+    setServices(prevServices => [newService, ...prevServices]);
   };
 
   const updateService = (updatedService) => {
-    if (Array.isArray(services)) {
-      setServices(services.map(service => service.id === updatedService.id ? updatedService : service));
-    } else {
-      console.error('Error: services no es un array', services);
-    }
-    setEditModalShow(false); // Cierra el modal después de la actualización
-    fetchProviderServices(); // Refresca la lista de servicios
+    setServices(prevServices => prevServices.map(service => service.id === updatedService.id ? updatedService : service));
+    setEditModalShow(false);
   };
 
   const deleteService = (serviceId) => {
-    if (Array.isArray(services)) {
-      setServices(services.filter(service => service.id !== serviceId));
-    } else {
-      console.error('Error: services no es un array', services);
-    }
+    setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
   };
 
   const handleLogout = () => {
@@ -71,9 +84,42 @@ function ProviderDashboard() {
   };
 
   const handleEditService = (service) => {
-    if (service) {
-      setCurrentService(service);
-      setEditModalShow(true);
+    setCurrentService(service);
+    setEditModalShow(true);
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUser(updatedUser);
+  };
+
+  const handleAcceptReservation = async (reservationId) => {
+    try {
+      await fetchWithAuth(`http://localhost:5500/reservations/${reservationId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'CONFIRMED' })
+      });
+      setReservations(prevReservations =>
+        prevReservations.map(reservation => reservation.id === reservationId ? { ...reservation, status: 'Confirmada' } : reservation)
+      );
+      setConfirmedReservations(prevConfirmedReservations => 
+        [...prevConfirmedReservations, reservations.find(reservation => reservation.id === reservationId)]
+      );
+    } catch (error) {
+      console.error('Error accepting reservation:', error);
+    }
+  };
+
+  const handleRejectReservation = async (reservationId) => {
+    try {
+      await fetchWithAuth(`http://localhost:5500/reservations/${reservationId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'CANCELLED' })
+      });
+      setReservations(prevReservations =>
+        prevReservations.map(reservation => reservation.id === reservationId ? { ...reservation, status: 'Cancelada' } : reservation)
+      );
+    } catch (error) {
+      console.error('Error rejecting reservation:', error);
     }
   };
 
@@ -88,8 +134,8 @@ function ProviderDashboard() {
       .join(' ');
   };
 
-  const handleUpdateUser = (updatedUser) => {
-    setUser(updatedUser);
+  const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
   return (
@@ -113,8 +159,10 @@ function ProviderDashboard() {
             <ListGroup.Item className="bg-dark text-light">
               <FontAwesomeIcon icon={faCalendar} /> Mis Servicios {services.length > 0 && <Badge bg="secondary">{services.length}</Badge>}
             </ListGroup.Item>
-            <ListGroup.Item className="bg-dark text-light">
-              <FontAwesomeIcon icon={faEnvelope} /> Mensajes
+            <ListGroup.Item className="bg-dark text-light" onClick={() => setReservationsModalShow(true)}>
+              <span className="text-decoration-none text-light" style={{ cursor: 'pointer' }}>
+                <FontAwesomeIcon icon={faCalendar} /> Reservas {reservations.length > 0 && <Badge bg="secondary">{reservations.length}</Badge>}
+              </span>
             </ListGroup.Item>
           </ListGroup>
         </Offcanvas.Body>
@@ -140,9 +188,40 @@ function ProviderDashboard() {
 
         {/* Sección de Servicios Publicados */}
         <h3 className="text-dark">
-          Mis Servicios Activos {services.length > 0 && <Badge bg="secondary">{services.length}</Badge>}
+          Mis Servicios {services.length > 0 && <Badge bg="secondary">{services.length}</Badge>}
         </h3>
         <MyServices services={services} updateService={updateService} deleteService={deleteService} handleEditService={handleEditService} />
+
+        {/* Sección de Reservas Confirmadas */}
+        <h3 className="text-dark mt-4">
+          Mis Reservas {confirmedReservations.length > 0 && <Badge bg="secondary">{confirmedReservations.length}</Badge>}
+        </h3>
+        <Card bg="dark" text="light">
+          <Card.Body>
+            <ListGroup variant="flush">
+              {confirmedReservations.map((reservation) => (
+                <ListGroup.Item key={reservation.id} className="bg-dark text-light">
+                  <h5>{reservation.service_name}</h5>
+                  <p className="mb-1 dateStyle">Fecha: {reservation.date_time_reservation.split('T')[0]}</p>
+                  <p className="mb-1">Precio: ${formatNumber(reservation.precio)}</p>
+                  <p className="mb-1">Cliente: {reservation.client_name}</p>
+                  <p className="mb-1">Correo electrónico: {reservation.client_email}</p>
+                  <p className="mb-1">Número de teléfono: {reservation.client_phone}</p>
+                  <p className="mb-1">Estado: <Badge bg={reservation.status === 'Confirmada' ? 'success' : 'warning'}>{reservation.status}</Badge></p>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card.Body>
+        </Card>
+
+        {/* Modal de Reservas Recibidas */}
+        <ReservationsModal
+          show={reservationsModalShow}
+          onHide={() => setReservationsModalShow(false)}
+          reservations={reservations}
+          handleAccept={handleAcceptReservation}
+          handleReject={handleRejectReservation}
+        />
       </div>
 
       {currentService && (

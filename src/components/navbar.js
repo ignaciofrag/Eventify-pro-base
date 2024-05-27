@@ -20,7 +20,7 @@ function NavigationBar({ onLoginClick }) {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="#" className="text-secondary">Home</Nav.Link>
-            <Nav.Link href="#">Proveedores</Nav.Link>
+            <Nav.Link href="/post">Proveedores</Nav.Link>
             <Nav.Link href="#">Eventos</Nav.Link>
             <Nav.Link href="#">FAQs</Nav.Link>
             <Nav.Link href="#">Acerca de</Nav.Link>

@@ -15,10 +15,11 @@ import UserProfileModal from './components/UserProfileModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import ServiceTypePage from './components/ServiceTypePage';
 import FAQ from './views/faq';
-import About from './views/about'; //
+import About from './views/about';
+import Footer from './components/Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "@fortawesome/fontawesome-free/css/all.min.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -28,19 +29,20 @@ function App() {
     <Router>
       <AuthProvider>
         <MainNavbar onLoginClick={() => setShowLogin(true)} />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/userdashboard" element={<ClientRoute><UserDashboard /></ClientRoute>} />
-          <Route path="/providerdashboard" element={<ProviderRoute><ErrorBoundary><ProviderDashboard /></ErrorBoundary></ProviderRoute>} />
-          <Route path="/post" element={<Post />} />
-          <Route path="/city/:cityName" element={<Cityview />} />
-          <Route path="/registrarse" element={<RegistroUsuario />} />
-          <Route path="/services/type/:serviceType" element={<ServiceTypePage />} /> {/* Añade esta línea */}
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/about" element={<About />} /> {/*ULTIMA RUTA */}
-
-
-        </Routes>
+        <div className="content-wrap">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/userdashboard" element={<ClientRoute><UserDashboard /></ClientRoute>} />
+            <Route path="/providerdashboard" element={<ProviderRoute><ErrorBoundary><ProviderDashboard /></ErrorBoundary></ProviderRoute>} />
+            <Route path="/post" element={<Post />} />
+            <Route path="/city/:cityName" element={<Cityview />} />
+            <Route path="/registrarse" element={<RegistroUsuario />} />
+            <Route path="/services/type/:serviceType" element={<ServiceTypePage />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </div>
+        <Footer />
         <LoginModal show={showLogin} onHide={() => setShowLogin(false)} />
         <UserProfileModal show={showProfile} onHide={() => setShowProfile(false)} onShowLogin={() => setShowLogin(true)} />
       </AuthProvider>

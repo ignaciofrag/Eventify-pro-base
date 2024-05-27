@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
+import Swal from 'sweetalert2';
 
 function NewServiceModal({ show, onHide, addService }) {
   const { user } = useAuth();
@@ -11,8 +12,10 @@ function NewServiceModal({ show, onHide, addService }) {
     price: '',
     description: '',
     location: '',
-    pricingType: ''
+    pricingType: '',
+    createdAt: '' // Añadir el campo createdAt
   });
+  const [charCount, setCharCount] = useState(0);
 
   useEffect(() => {
     if (user && user.profile) {
@@ -38,44 +41,44 @@ function NewServiceModal({ show, onHide, addService }) {
   ];
 
   const serviceTypes = [
-    "Planificación y coordinación de eventos 📋",
     "Planificación de bodas 💍",
-    "Planificación de fiestas temáticas 🎉",
     "Planificación de cumpleaños y fiestas infantiles 🎂",
-    "Planificación de eventos en cruceros 🚢",
-    "Coordinación de conferencias y seminarios 📊",
-    "Gestión de eventos corporativos 🏢",
-    "Consultoría de eventos 💼",
-    "Coordinación de eventos virtuales y webinars 💻",
-    "Consultoría de riesgos y seguros para eventos 📑",
+    "Catering y servicios de alimentos 🍽️",
+    "DJ y música en vivo 🎶",
+    "Fotografía profesional 📸",
+    "Videografía 🎥",
+    "Animación infantil 🤹",
+    "Servicios de maquillaje y peluquería 💄",
+    "Planificación y coordinación de eventos 📋",
     "Decoración de eventos 🎨",
     "Floristería y arreglo de flores 💐",
+    "Planificación de fiestas temáticas 🎉",
+    "Gestión de eventos corporativos 🏢",
+    "Animación y entretenimiento 🎭",
+    "Conciertos y festivales 🎤",
+    "Producción de espectáculos y shows 🎬",
+    "Coordinación de conferencias y seminarios 📊",
+    "Bebidas y bar móvil 🍹",
+    "Food Trucks 🚚",
+    "Arriendo de mobiliario 🪑",
     "Iluminación y efectos especiales 💡",
+    "Planificación de eventos en cruceros 🚢",
+    "Coordinación de eventos virtuales y webinars 💻",
+    "Consultoría de eventos 💼",
+    "Consultoría de riesgos y seguros para eventos 📑",
     "Diseño de stands y exhibiciones 🖼️",
     "Diseño y producción de invitaciones ✉️",
     "Diseño y producción de merchandising 🎁",
     "Diseño de menús y servicios de chef privado 🍴",
-    "Servicios de impresión y señalización 🖨️",
-    "Catering y servicios de alimentos 🍽️",
-    "Bebidas y bar móvil 🍹",
     "Servicios de catering especializado (vegano, kosher, etc.) 🥗",
-    "Food Trucks 🚚",
-    "Arriendo de mobiliario 🪑",
     "Arriendo de carpas y toldos ⛺",
     "Arriendo de equipos de tecnología 🖥️",
     "Arriendo de escenarios y tarimas 🎪",
     "Transporte y logística 🚚",
     "Control de clima y calefacción ❄️",
     "Servicios de limpieza y mantenimiento 🧹",
-    "Animación y entretenimiento 🎭",
-    "DJ y música en vivo 🎶",
     "Espectáculos de fuegos artificiales 🎆",
-    "Producción de espectáculos y shows 🎬",
-    "Animación infantil 🤹",
-    "Conciertos y festivales 🎤",
     "Eventos deportivos ⚽",
-    "Fotografía profesional 📸",
-    "Videografía 🎥",
     "Hostess y personal de recepción 🙋",
     "Seguridad y control de acceso 🔐",
     "Servicios de traducción e interpretación 🌎",
@@ -87,12 +90,19 @@ function NewServiceModal({ show, onHide, addService }) {
     "Marketing y promoción de eventos 📢",
     "Servicios de protocolo y etiqueta 🎩",
     "Eventos benéficos y recaudación de fondos 💸",
-    "Servicios de maquillaje y peluquería 💄"
   ];
+
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setNewService({ ...newService, [name]: value });
+    const capitalizedValue = capitalizeFirstLetter(value);
+    if (name === 'description') {
+      setCharCount(capitalizedValue.length);
+    }
+    setNewService({ ...newService, [name]: capitalizedValue });
   };
 
   const handlePricingTypeChange = (e) => {
@@ -102,10 +112,15 @@ function NewServiceModal({ show, onHide, addService }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (user && user.profile && user.profile.role !== 'Proveedor') {
-      console.error('User is not a provider');
+      Swal.fire('Error', 'User is not a provider', 'error');
+      return;
+    }
+    if (charCount < 25 || charCount > 100) {
+      Swal.fire('Error', 'La descripción debe tener entre 25 y 100 caracteres.', 'error');
       return;
     }
     try {
+      newService.createdAt = new Date().toISOString(); // agregando la fecha de creación al servicio
       console.log('Sending request to create service:', newService);
       const data = await fetchWithAuth('http://localhost:5500/services', {
         method: 'POST',
@@ -178,7 +193,19 @@ function NewServiceModal({ show, onHide, addService }) {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Descripción *</Form.Label>
-            <Form.Control type="text" name="description" value={newService.description} onChange={handleChange} required />
+            <Form.Control 
+              type="text" 
+              name="description"
+              placeholder="Mi servicio consiste en..." 
+              value={newService.description} 
+              onChange={handleChange} 
+              required 
+              minLength={25} 
+              maxLength={100}
+            />
+            <div style={{ color: charCount < 25 ? 'red' : 'green' }}>
+              {charCount < 25 ? `${charCount}/25` : `${charCount}/100`}
+            </div>
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Ubicación *</Form.Label>

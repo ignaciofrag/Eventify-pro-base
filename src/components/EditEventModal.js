@@ -7,7 +7,8 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
 
   useEffect(() => {
     if (event && event.date) {
-      const formattedDate = new Date(event.date).toISOString().split('T')[0];
+      const eventDate = new Date(event.date);
+      const formattedDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate()).toISOString().split('T')[0];
       setEditableEvent({ ...event, date: formattedDate });
     } else {
       setEditableEvent(event);
@@ -21,7 +22,7 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Enviando datos:', JSON.stringify(editableEvent));
+      console.log('Submitting event:', editableEvent);
 
       const response = await fetchWithAuth(`http://localhost:5500/events/${editableEvent.id}`, {
         method: 'PUT',
@@ -31,20 +32,19 @@ function EditEventModal({ show, onHide, event, updateEvent }) {
         }
       });
 
-      console.log('Respuesta del servidor:', response);
+      console.log('Server raw response:', response);
 
-      const result = response; // ya está en formato JSON
-      console.log('Evento actualizado:', result);
-
-      const updatedEvent = {
-        ...editableEvent,
-        id: result.event_id
-      };
-
-      updateEvent(updatedEvent); // Actualiza el estado con el evento actualizado
-      onHide(); // Cierra el modal
+      if (response && response.event_id) {
+        updateEvent({ ...editableEvent, id: response.event_id });
+        onHide();
+      } else {
+        const errorMsg = response?.msg || 'Unexpected error';
+        console.error('Error updating event:', errorMsg, response);
+        alert(`Error updating event: ${errorMsg}`);
+      }
     } catch (error) {
-      console.error('Error updating event:', error);
+      console.error('Error updating event (catch block):', error.message || 'Unknown error');
+      alert(`Error updating event: ${error.message || 'Unknown error'}`);
     }
   };
 

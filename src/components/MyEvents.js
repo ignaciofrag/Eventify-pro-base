@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, ListGroup, Button, Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { fetchWithAuth } from '../utils/api';
+import { timeSince, daysUntil } from '../utils/timeUtils';
 
 function MyEvents({ events, updateEvent, deleteEvent, handleEditEvent }) {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [eventToDelete, setEventToDelete] = useState(null);
+  const [time, setTime] = useState(Date.now());
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setTime(Date.now()); // Actualizar el tiempo para forzar re-renderización
+    }, 60000); // 60000ms = 1 minuto
+
+    return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
+  }, []);
 
   const handleDelete = (eventId) => {
     setEventToDelete(eventId);
@@ -31,8 +41,9 @@ function MyEvents({ events, updateEvent, deleteEvent, handleEditEvent }) {
         <Card.Body>
           <Card.Title className='text-danger'>Todos tus Eventos</Card.Title>
           <ListGroup variant="flush">
-            {events.length > 0 ? (
-              events.map((event) => (
+            {events.map((event) => {
+              const isEventFinished = daysUntil(event.date) === "Evento finalizado";
+              return (
                 <ListGroup.Item key={event.id} className="bg-dark text-light">
                   <h4>Evento: {event.name}</h4>
                   <p>Fecha: {new Date(event.date).toLocaleDateString()}</p>
@@ -40,6 +51,10 @@ function MyEvents({ events, updateEvent, deleteEvent, handleEditEvent }) {
                   <p>Ubicación: {event.location.charAt(0).toUpperCase() + event.location.slice(1)}</p>
                   <p>Invitados: {event.guests}</p>
                   <p>Detalle: {event.details}</p>
+                  <p>Publicado: {timeSince(event.created_at)}</p>
+                  <p className={isEventFinished ? 'text-danger' : 'text-success'}>
+                    {daysUntil(event.date)}
+                  </p>
                   <div className="d-flex justify-content-between">
                     <Button variant="warning" className="me-2" onClick={() => handleEditEvent(event)}>
                       <FontAwesomeIcon icon={faEdit} />
@@ -49,10 +64,8 @@ function MyEvents({ events, updateEvent, deleteEvent, handleEditEvent }) {
                     </Button>
                   </div>
                 </ListGroup.Item>
-              ))
-            ) : (
-              <p>No tienes ningún evento de momento.</p>
-            )}
+              );
+            })}
           </ListGroup>
         </Card.Body>
       </Card>

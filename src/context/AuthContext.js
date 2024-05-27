@@ -56,18 +56,11 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('userToken');
     localStorage.removeItem('user');
-    sessionStorage.removeItem('userToken');
-    sessionStorage.removeItem('user');
     setUser(null);
   };
 
-  const updateUser = (updatedUser) => {
-    setUser({ ...updatedUser, isAuthenticated: true }); // Mantén el estado de autenticado
-    localStorage.setItem('user', JSON.stringify({ ...updatedUser, isAuthenticated: true }));
-  };
-
   return (
-    <AuthContext.Provider value={{ user, isLoading, error, login, logout, setUser, updateUser }}>
+    <AuthContext.Provider value={{ user, isLoading, error, login, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

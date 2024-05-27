@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Offcanvas, ListGroup, Button, Badge } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faUser, faBook, faCalendar, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faUser, faCalendar, faPlusSquare, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import MyEvents from '../components/MyEvents';
-import MyReservations from '../components/MyReservations';
 import NewEventModal from '../components/NewEventModal';
 import EditEventModal from '../components/EditEventModal';
 import UserProfileModal from '../components/UserProfileModal';
+import MyReservations from '../components/MyReservations';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
-
 
 function UserDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [editModalShow, setEditModalShow] = useState(false);
   const [profileModalShow, setProfileModalShow] = useState(false);
   const [events, setEvents] = useState([]);
+  const [reservations, setReservations] = useState([]);
   const [currentEvent, setCurrentEvent] = useState(null);
   const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
@@ -28,9 +28,8 @@ function UserDashboard() {
       const fetchUserEvents = async () => {
         try {
           const data = await fetchWithAuth(`http://localhost:5500/user/${user.id}/events`);
-          console.log('Datos obtenidos:', data); // Depuración
           if (Array.isArray(data)) {
-            setEvents(data);
+            setEvents(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
           } else {
             setEvents([]);
             console.error('Error: Los datos obtenidos no son un array');
@@ -40,28 +39,42 @@ function UserDashboard() {
           setEvents([]);
         }
       };
+
+      const fetchUserReservations = async () => {
+        try {
+          const data = await fetchWithAuth(`http://localhost:5500/user/${user.id}/reservations`);
+          if (Array.isArray(data)) {
+            setReservations(data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)));
+          } else {
+            setReservations([]);
+            console.error('Error: Los datos obtenidos no son un array');
+          }
+        } catch (error) {
+          console.error('Error fetching user reservations:', error);
+          setReservations([]);
+        }
+      };
+
       fetchUserEvents();
+      fetchUserReservations();
     }
   }, [user, navigate]);
 
   const addEvent = (newEvent) => {
-    setEvents([...events, newEvent]);
+    setEvents(prevEvents => [newEvent, ...prevEvents]);
   };
 
   const updateEvent = (updatedEvent) => {
-    if (Array.isArray(events)) {
-      setEvents(events.map(event => event.id === updatedEvent.id ? updatedEvent : event));
-    } else {
-      console.error('Error: events no es un array', events);
-    }
+    setEvents(prevEvents => prevEvents.map(event => event.id === updatedEvent.id ? updatedEvent : event));
+    setEditModalShow(false);
   };
 
   const deleteEvent = (eventId) => {
-    if (Array.isArray(events)) {
-      setEvents(events.filter(event => event.id !== eventId));
-    } else {
-      console.error('Error: events no es un array', events);
-    }
+    setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+  };
+
+  const deleteReservation = (reservationId) => {
+    setReservations(prevReservations => prevReservations.filter(reservation => reservation.id !== reservationId));
   };
 
   const handleLogout = () => {
@@ -107,11 +120,11 @@ function UserDashboard() {
                 <FontAwesomeIcon icon={faUser} /> Perfil
               </span>
             </ListGroup.Item>
-            <ListGroup.Item className="bg-dark text-light" onClick={() => navigate('/reservations')}>
-              <FontAwesomeIcon icon={faBook} /> Mis Reservas
-            </ListGroup.Item>
             <ListGroup.Item className="bg-dark text-light">
               <FontAwesomeIcon icon={faCalendar} /> Mis Eventos {events.length > 0 && <Badge bg="secondary">{events.length}</Badge>}
+            </ListGroup.Item>
+            <ListGroup.Item className="bg-dark text-light">
+              <FontAwesomeIcon icon={faCalendar} /> Mis Reservas {reservations.length > 0 && <Badge bg="secondary">{reservations.length}</Badge>} 
             </ListGroup.Item>
           </ListGroup>
         </Offcanvas.Body>
@@ -141,8 +154,11 @@ function UserDashboard() {
         </h3>
         <MyEvents events={events} updateEvent={updateEvent} deleteEvent={deleteEvent} handleEditEvent={handleEditEvent} />
 
-        {/* Sección de Reservas con Proveedores */}
-        <MyReservations />
+        {/* Sección de Reservas */}
+        <h3 className="text-dark mt-4">
+          Mis Reservas {reservations.length > 0 && <Badge bg="secondary">{reservations.length}</Badge>}
+        </h3>
+        <MyReservations reservations={reservations} deleteReservation={deleteReservation} />
       </div>
 
       {currentEvent && (

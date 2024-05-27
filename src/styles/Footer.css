@@ -1,0 +1,35 @@
+.footer {
+    padding: 20px 0;
+    background-color: #343a40;
+    color: #f8f9fa;
+  }
+  
+  .footer h5 {
+    font-size: 1rem; /* Ajusta el tamaño de los encabezados */
+  }
+  
+  .footer p {
+    font-size: 0.875rem; /* Ajusta el tamaño del texto del párrafo */
+  }
+  
+  .footer .footer-link {
+    font-size: 0.875rem; /* Ajusta el tamaño de los enlaces */
+  }
+  
+  .footer ul {
+    padding: 0;
+    list-style: none;
+  }
+  
+  .footer ul li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer a {
+    color: #f8f9fa;
+    text-decoration: none;
+  }
+  
+  .footer a:hover {
+    text-decoration: underline;
+  }

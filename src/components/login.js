@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, FloatingLabel, FormControl, FormCheck } from "react-bootstrap";
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
-import { Link } from 'react-router-dom';
 
 function LoginModal({ show, onHide }) {
   const [email, setEmail] = useState('');
