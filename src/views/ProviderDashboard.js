@@ -10,17 +10,21 @@ import UserProfileModal from '../components/UserProfileModal';
 import ReservationsModal from '../components/ReservationsModal';
 import { useAuth } from '../context/AuthContext';
 import { fetchWithAuth } from '../utils/api';
+import Swal from 'sweetalert2';
+
 
 function ProviderDashboard() {
   const [modalShow, setModalShow] = useState(false);
   const [editModalShow, setEditModalShow] = useState(false);
   const [profileModalShow, setProfileModalShow] = useState(false);
   const [reservationsModalShow, setReservationsModalShow] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false); // Agregado
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false); // Modal para eliminar servicio
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false); // Modal para cancelar reserva
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [reservationToCancel, setReservationToCancel] = useState(null);
   const [services, setServices] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [confirmedReservations, setConfirmedReservations] = useState([]);
-  const [reservationToCancel, setReservationToCancel] = useState(null); // Estado para almacenar la reserva a cancelar
   const [currentService, setCurrentService] = useState(null);
   const { user, logout, setUser } = useAuth();
   const navigate = useNavigate();
@@ -76,6 +80,40 @@ function ProviderDashboard() {
     setEditModalShow(false);
   };
 
+  const handleDeleteService = (serviceId) => {
+    setServiceToDelete(serviceId);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (serviceToDelete) {
+      try {
+        const response = await fetchWithAuth(`http://localhost:5500/services/${serviceToDelete}`, {
+          method: 'DELETE'
+        });
+  
+        if (response.msg === "No se puede eliminar el servicio porque tiene reservas asociadas") {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se puede eliminar el servicio porque tiene reservas asociadas',
+          });
+        } else {
+          deleteService(serviceToDelete);
+          setShowDeleteConfirmModal(false);
+          setServiceToDelete(null);
+        }
+      } catch (error) {
+        console.error('Error deleting service:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se puede eliminar el servicio porque tiene reservas asociadas',
+        });
+      }
+    }
+  };
+
   const deleteService = (serviceId) => {
     setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
   };
@@ -126,20 +164,23 @@ function ProviderDashboard() {
   };
 
   const handleCancelReservation = async () => {
-    try {
-      await fetchWithAuth(`http://localhost:5500/reservations/${reservationToCancel}/status`, {
-        method: 'PATCH',
-        body: JSON.stringify({ status: 'CANCELLED' })
-      });
-      setReservations(prevReservations =>
-        prevReservations.map(reservation => reservation.id === reservationToCancel ? { ...reservation, status: 'Cancelada' } : reservation)
-      );
-      setConfirmedReservations(prevConfirmedReservations =>
-        prevConfirmedReservations.filter(reservation => reservation.id !== reservationToCancel)
-      );
-      setShowConfirmModal(false); // Cerrar el modal después de la cancelación
-    } catch (error) {
-      console.error('Error cancelling reservation:', error);
+    if (reservationToCancel) {
+      try {
+        await fetchWithAuth(`http://localhost:5500/reservations/${reservationToCancel}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status: 'CANCELLED' })
+        });
+        setReservations(prevReservations =>
+          prevReservations.map(reservation => reservation.id === reservationToCancel ? { ...reservation, status: 'Cancelada' } : reservation)
+        );
+        setConfirmedReservations(prevConfirmedReservations =>
+          prevConfirmedReservations.filter(reservation => reservation.id !== reservationToCancel)
+        );
+        setShowCancelConfirmModal(false); // Cerrar el modal después de la cancelación
+        setReservationToCancel(null); // Limpiar el estado
+      } catch (error) {
+        console.error('Error cancelling reservation:', error);
+      }
     }
   };
 
@@ -160,7 +201,7 @@ function ProviderDashboard() {
 
   const confirmCancel = (reservationId) => {
     setReservationToCancel(reservationId);
-    setShowConfirmModal(true);
+    setShowCancelConfirmModal(true);
   };
 
   return (
@@ -215,7 +256,7 @@ function ProviderDashboard() {
         <h3 className="text-dark">
           Mis Servicios {services.length > 0 && <Badge bg="secondary">{services.length}</Badge>}
         </h3>
-        <MyServices services={services} updateService={updateService} deleteService={deleteService} handleEditService={handleEditService} />
+        <MyServices services={services} updateService={updateService} deleteService={handleDeleteService} handleEditService={handleEditService} />
 
         {/* Sección de Reservas Confirmadas */}
         <h3 className="text-dark mt-4">
@@ -267,8 +308,27 @@ function ProviderDashboard() {
         user={user}
         updateUser={handleUpdateUser}
       />
-    {/* Modal de Confirmación */}
-    <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+
+      {/* Modal de Confirmación de Eliminación */}
+      <Modal show={showDeleteConfirmModal} onHide={() => setShowDeleteConfirmModal(false)}>
+        <Modal.Header closeButton style={{ backgroundColor: '#f8d7da' }}>
+          <Modal.Title>⚠️ Confirmar Eliminación ⚠️</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ backgroundColor: '#f8d7da' }}>
+          <p>🚫 ¿Estás seguro de que quieres eliminar este Servicio? Esta acción no se puede deshacer. 🚫</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteConfirmModal(false)}>
+            No
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Sí
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de Confirmación de Cancelación */}
+      <Modal show={showCancelConfirmModal} onHide={() => setShowCancelConfirmModal(false)}>
         <Modal.Header closeButton style={{ backgroundColor: '#f8d7da' }}>
           <Modal.Title>⚠️ Confirmar Cancelación ⚠️</Modal.Title>
         </Modal.Header>
@@ -276,7 +336,7 @@ function ProviderDashboard() {
           <p>🚫 ¿Estás seguro de que quieres cancelar esta reserva? Esta acción no se puede deshacer. 🚫</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirmModal(false)}>
+          <Button variant="secondary" onClick={() => setShowCancelConfirmModal(false)}>
             No
           </Button>
           <Button variant="danger" onClick={handleCancelReservation}>

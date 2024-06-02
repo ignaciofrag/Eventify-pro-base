@@ -44,7 +44,7 @@ function NewServiceModal({ show, onHide, addService }) {
     "Planificación de bodas 💍",
     "Planificación de cumpleaños y fiestas infantiles 🎂",
     "Catering y servicios de alimentos 🍽️",
-    "DJ y música en vivo 🎶",
+    "Dj y música en vivo 🎶",
     "Fotografía profesional 📸",
     "Videografía 🎥",
     "Animación infantil 🤹",

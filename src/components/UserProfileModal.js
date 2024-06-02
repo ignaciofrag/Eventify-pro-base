@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
@@ -157,7 +156,7 @@ function UserProfileModal({ show, onHide }) {
           popup: 'animate__animated animate__fadeOutUp'
         }
       });
-      updateUser(data.user);
+      updateUser(data.user); // Actualiza el estado del usuario
 
       if (editableUser.newPassword) {
         Swal.fire({

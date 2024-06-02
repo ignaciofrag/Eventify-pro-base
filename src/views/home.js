@@ -3,6 +3,7 @@ import { Accordion, Card, Button, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'; 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import defaultImage from '../imgs/defaultService.png';
+import serviceImages from '../serviceImages';
 
 // Importar imágenes
 import antofagasta from '../imgs/antofagasta.jpg';
@@ -120,19 +121,19 @@ function Home() {
  
 
   const properties = [
+    { city: "Santiago", title: "Lugares en Santiago", img: santiago },
+    { city: "Valparaíso", title: "Lugares en Valparaíso", img: valparaiso },
     { city: "Antofagasta", title: "Lugares en Antofagasta", img: antofagasta },
-    { city: "Viña del Mar", title: "Lugares en Viña del Mar", img: vinaDelMar },
+    { city: "Concepción", title: "Lugares en Concepción", img: concepcion },
+    { city: "Coquimbo", title: "Lugares en Coquimbo", img: coquimbo },
     { city: "Concón", title: "Lugares en Concón", img: concon },
     { city: "Iquique", title: "Lugares en Iquique", img: iquique },
-    { city: "Concepción", title: "Lugares en Concepción", img: concepcion },
     { city: "Rancagua", title: "Lugares en Rancagua", img: rancagua },
-    { city: "Santiago", title: "Lugares en Santiago", img: santiago },
     { city: "Valdivia", title: "Lugares en Valdivia", img: valdivia },
     { city: "Temuco", title: "Lugares en Temuco", img: temuco },
-    { city: "Coquimbo", title: "Lugares en Coquimbo", img: coquimbo },
     { city: "La Serena", title: "Lugares en La Serena", img: laSerena },
-    { city: "Valparaíso", title: "Lugares en Valparaíso", img: valparaiso },
     { city: "Pucón", title: "Lugares en Pucón", img: pucon },
+    { city: "Viña del Mar", title: "Lugares en Viña del Mar", img: vinaDelMar },
     { city: "Puerto Varas", title: "Lugares en Puerto Varas", img: puertoVaras }
   ];
   
@@ -178,19 +179,23 @@ function Home() {
         
         <Container className="py-5 bg-dark">
           <h2 className="text-center mb-4 text-light">Servicios buscados por los clientes ⭐</h2>
-          <Row xs={1} md={2} lg={3} className="g-4">
-            {limitedServices.map(service => (
-              <Col key={service.id}>
-                <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
-                  <Card.Img variant="top" src={service.image || defaultImage} />
-                  <Card.Body>
-                    <Card.Title>{service.name}</Card.Title>
-                    <Card.Text>{service.description}</Card.Text>
-                    
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
+          <Row xs={1} md={2} lg={3} className="g-4 justify-content-center"> {/* Agregamos justify-content-center para centrar las cards */}
+            {limitedServices.map(service => {
+              const serviceImage = serviceImages[service.type] || defaultImage;
+              console.log('Service type:', service.type);
+              console.log('Mapped image:', serviceImage);
+              return (
+                <Col key={service.id} className="d-flex justify-content-center">
+                  <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
+                    <Card.Img variant="top" src={serviceImage} style={{ height: '200px', objectFit: 'cover' }} /> {/* Ajustamos la altura y el objectFit */}
+                    <Card.Body>
+                      <Card.Title>{service.name}</Card.Title>
+                      <Card.Text>{service.description}</Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
           <div className="text-center mt-4">
             <Button variant="danger" onClick={() => navigate('/post')}>Ver más</Button>
@@ -198,26 +203,26 @@ function Home() {
         </Container>
 
         <Container className="py-5 bg-dark">
-          <h2 className="text-center mb-4 text-light">Proveedores de Eventos en todo Chile 🗺️</h2>
-          <Row xs={1} md={2} lg={3} className="g-4">
-            {properties.map((property, index) => (
-              <Col key={index}>
-                <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
-                  <Card.Img variant="top" src={property.img} />
-                  <Card.Body>
-                    <Card.Title>{property.title}</Card.Title>
-                    <Card.Text>
-                      Encuentra el proveedor perfecto para tus eventos y celebraciones ubicado en {property.city}.
-                    </Card.Text>
-                    <Button variant="danger" onClick={() => handleMoreInfoClick(property.city)}>
-                    Más información
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        </Container>
+  <h2 className="text-center mb-4 text-light">Proveedores de Eventos en todo Chile 🗺️</h2>
+  <Row xs={1} md={2} lg={3} className="g-4 justify-content-center">
+    {properties.map((property, index) => (
+      <Col key={index} className="d-flex justify-content-center">
+        <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }}>
+          <Card.Img variant="top" src={property.img} style={{ height: '200px', objectFit: 'cover' }} />
+          <Card.Body>
+            <Card.Title>{property.title}</Card.Title>
+            <Card.Text>
+              Encuentra el proveedor perfecto para tus eventos y celebraciones ubicado en {property.city}.
+            </Card.Text>
+            <Button variant="danger" onClick={() => handleMoreInfoClick(property.city)}>
+              Más información
+            </Button>
+          </Card.Body>
+        </Card>
+      </Col>
+    ))}
+  </Row>
+</Container>
         
       </main>
     </div>

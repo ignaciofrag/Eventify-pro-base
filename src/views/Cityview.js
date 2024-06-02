@@ -6,15 +6,16 @@ import { fetchWithAuth } from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import defaultImage from '../imgs/defaultService.png';
 import Map from '../components/Map'; // Asegúrate de importar el componente Map
+import serviceImages from '../serviceImages';
 
 const cityCoordinatesMap = {
+  "Santiago": { lat: -33.4489, lng: -70.6693 },
   "Antofagasta": { lat: -23.6500, lng: -70.4000 },
   "Viña del Mar": { lat: -33.0245, lng: -71.5518 },
   "Concón": { lat: -32.9333, lng: -71.5333 },
   "Iquique": { lat: -20.2307, lng: -70.1357 },
   "Concepción": { lat: -36.8269, lng: -73.0498 },
   "Rancagua": { lat: -34.1654, lng: -70.7399 },
-  "Santiago": { lat: -33.4489, lng: -70.6693 },
   "Valdivia": { lat: -39.8196, lng: -73.2454 },
   "Temuco": { lat: -38.7359, lng: -72.5904 },
   "Coquimbo": { lat: -29.9533, lng: -71.3436 },
@@ -150,6 +151,11 @@ function Cityview() {
     }
   };
 
+  function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+
   return (
     <Container className="py-5 bg-dark">
       <h2 className="text-center text-light mb-4">Proveedores en {cityName}</h2>
@@ -160,22 +166,27 @@ function Cityview() {
           <Map center={cityCoordinates} markers={providers.map(provider => provider.coordinates)} />
 
           {providers.length > 0 ? (
-            <Row xs={1} md={2} lg={3} className="g-4">
-              {providers.map(provider => (
-                <Col key={provider.id}>
-                  <Card style={{ width: '18rem' }}>
-                    <Card.Img variant="top" src={provider.image || defaultImage} />
-                    <Card.Body>
-                      <Card.Title>Servicio: <strong>{provider.company_name}</strong></Card.Title>
-                      <Card.Text>Descripción: {provider.description}</Card.Text>
-                      <Card.Text><strong>Empresa</strong>: {provider.company_name}</Card.Text>
-                      <Card.Text><strong>Lugar:</strong> {provider.location}</Card.Text>
-                      <Card.Text><strong>Precio: </strong>${provider.price} {provider.pricingType === 'por hora' ? 'por hora' : 'por evento'}</Card.Text>
-                      <Button variant="danger" onClick={() => handleReservationClick(provider)}>Reservar</Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
+            <Row xs={1} md={2} lg={3} className="g-4 justify-content-center">
+              {providers.map(provider => {
+                const serviceImage = serviceImages[provider.type] || defaultImage;
+                console.log('Service type:', provider.type);
+                console.log('Mapped image:', serviceImage);
+                return (
+                  <Col key={provider.id} className="d-flex justify-content-center">
+                    <Card style={{ width: '18rem', backgroundColor: '#333', color: '#fff' }} className="text-light">
+                      <Card.Img variant="top" src={serviceImage} style={{ height: '200px', objectFit: 'cover' }} />
+                      <Card.Body>
+                        <Card.Title>Servicio: <strong>{provider.company_name}</strong></Card.Title>
+                        <Card.Text>Descripción: {provider.description}</Card.Text>
+                        <Card.Text><strong>Empresa</strong>: {provider.company_name}</Card.Text>
+                        <Card.Text><strong>Lugar:</strong> {provider.location}</Card.Text>
+                        <Card.Text><strong>Precio: </strong>${formatNumber(provider.price)} {provider.pricingType === 'por hora' ? 'por hora' : 'por evento'}</Card.Text>
+                        <Button variant="danger" onClick={() => handleReservationClick(provider)}>Reservar</Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })}
             </Row>
           ) : (
             <div className="text-center text-light">

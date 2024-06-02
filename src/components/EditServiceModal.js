@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { fetchWithAuth } from '../utils/api';
 import Swal from 'sweetalert2';
 
 function EditServiceModal({ show, onHide, service, updateService }) {
-  const [updatedService, setUpdatedService] = useState(service);
-  const [charCount, setCharCount] = useState(service.description.length);
+  const [updatedService, setUpdatedService] = useState(service || {});
+  const [charCount, setCharCount] = useState(service ? service.description.length : 0);
+
+  useEffect(() => {
+    if (service) {
+      setUpdatedService(service);
+      setCharCount(service.description.length);
+    }
+  }, [service]);
+
 
   const cities = [
     "Antofagasta",
@@ -28,7 +36,7 @@ function EditServiceModal({ show, onHide, service, updateService }) {
     "Planificación de bodas 💍",
     "Planificación de cumpleaños y fiestas infantiles 🎂",
     "Catering y servicios de alimentos 🍽️",
-    "DJ y música en vivo 🎶",
+    "Dj y música en vivo 🎶",
     "Fotografía profesional 📸",
     "Videografía 🎥",
     "Animación infantil 🤹",
@@ -77,8 +85,9 @@ function EditServiceModal({ show, onHide, service, updateService }) {
   ];
 
   const capitalizeFirstLetter = (string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    return string.charAt(0).toUpperCase() + string.slice(1);
   };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +126,7 @@ function EditServiceModal({ show, onHide, service, updateService }) {
     }
   };
 
+
   return (
     <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
@@ -126,11 +136,11 @@ function EditServiceModal({ show, onHide, service, updateService }) {
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Nombre del Servicio *</Form.Label>
-            <Form.Control type="text" name="name" value={updatedService.name} onChange={handleChange} required />
+            <Form.Control type="text" name="name" value={updatedService.name || ''} onChange={handleChange} required />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Tipo de Servicio *</Form.Label>
-            <Form.Control as="select" name="type" value={updatedService.type} onChange={handleChange} required>
+            <Form.Control as="select" name="type" value={updatedService.type || ''} onChange={handleChange} required>
               <option value="">Selecciona el tipo de servicio</option>
               {serviceTypes.map((type, index) => (
                 <option key={index} value={type}>{type}</option>
@@ -139,7 +149,7 @@ function EditServiceModal({ show, onHide, service, updateService }) {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Precio *</Form.Label>
-            <Form.Control type="number" name="price" value={updatedService.price} onChange={handleChange} required />
+            <Form.Control type="number" name="price" value={updatedService.price || ''} onChange={handleChange} required />
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Tipo de Precio *</Form.Label>
@@ -172,7 +182,7 @@ function EditServiceModal({ show, onHide, service, updateService }) {
               type="text" 
               name="description"
               placeholder="Mi servicio consiste en..." 
-              value={updatedService.description} 
+              value={updatedService.description || ''} 
               onChange={handleChange} 
               required 
               minLength={25} 
@@ -184,7 +194,7 @@ function EditServiceModal({ show, onHide, service, updateService }) {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>Ubicación *</Form.Label>
-            <Form.Control as="select" name="location" value={updatedService.location} onChange={handleChange} required>
+            <Form.Control as="select" name="location" value={updatedService.location || ''} onChange={handleChange} required>
               <option value="">Selecciona una ciudad</option>
               {cities.map((city, index) => (
                 <option key={index} value={city}>{city}</option>
